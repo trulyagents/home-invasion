@@ -17,18 +17,6 @@ local function preparePart(part)
     part.CastShadow = false
     part.LocalTransparencyModifier = 0
 end
-local function cleanClone(instance)
-    for _, child in instance:GetDescendants() do
-        if
-            child:IsA("BaseScript")
-            or child:IsA("JointInstance")
-            or child:IsA("Constraint")
-            or child:IsA("WeldConstraint")
-        then
-            child:Destroy()
-        end
-    end
-end
 local function cleanup()
     if not context then
         return
@@ -68,34 +56,25 @@ local function startAction(name, duration)
     context.model:SetAttribute(name .. "Count", counts[name])
     context.model:SetAttribute("Action", name)
 end
+-- Uses the rig's own simple arms, coloured to match the player's skin. Cloning the
+-- avatar's real arms breaks with layered clothing and unusual body scales.
 local function replaceArms(model, character)
-    local r6 = character.Humanoid.RigType == Enum.HumanoidRigType.R6
+    local colors = character:FindFirstChildOfClass("BodyColors")
     for _, name in armNames do
-        local source = character:FindFirstChild(name)
         local template = model[name]
-        if source and source:IsA("BasePart") then
-            local clone = source:Clone()
-            if clone then
-                cleanClone(clone)
-                clone.Name = name
-                clone.Parent = model
-                template:Destroy()
-                template = clone
-            end
-        elseif r6 then
-            local sourceArm = character:FindFirstChild(name:sub(1, 4) == "Left" and "Left Arm" or "Right Arm")
-            if sourceArm then
-                template.Color = sourceArm.Color
-            end
+        local source = character:FindFirstChild(name)
+            or character:FindFirstChild(name:sub(1, 4) == "Left" and "Left Arm" or "Right Arm")
+        if colors then
+            template.Color = name:sub(1, 4) == "Left" and colors.LeftArmColor3 or colors.RightArmColor3
+        elseif source and source:IsA("BasePart") then
+            template.Color = source.Color
         end
         preparePart(template)
         template.Transparency = 0
     end
-    for _, name in { "Shirt", "Pants", "Body Colors" } do
-        local item = character:FindFirstChild(name)
-        if item then
-            item:Clone().Parent = model
-        end
+    local shirt = character:FindFirstChildOfClass("Shirt")
+    if shirt then
+        shirt:Clone().Parent = model
     end
 end
 local function build(character, camera, tool)

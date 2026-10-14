@@ -28,7 +28,6 @@ Then open the place in Studio and connect with the Rojo plugin.
 src/
   server/    ServerScriptService
   client/    StarterPlayerScripts
-  modules/   ReplicatedStorage.Modules
 tools/       helper scripts (run with Lune)
 extracted/   copies of scripts that live inside models and UI (not synced)
 ```

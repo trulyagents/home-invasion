@@ -67,18 +67,6 @@ return {
             MinimumFacingDot = 0.4,
             Placeholder = { Handle = Color3.fromRGB(30, 30, 30), Head = Color3.fromRGB(45, 45, 45), Length = 2.6 },
         },
-        -- Old ranged weapon, no longer spawned. Kept so old saves and tools don't break.
-        Rifle = {
-            DisplayName = "House Rifle",
-            AttackKind = "Ranged",
-            SpawnCount = 0,
-            Damage = 25,
-            Range = 200,
-            AttackCooldown = 0.35,
-            MagazineSize = 8,
-            ReserveAmmo = 16,
-            ReloadSeconds = 1.8,
-        },
         Crowbar = {
             DisplayName = "Crowbar",
             SpawnCount = 2,

@@ -2,7 +2,9 @@
 
 Some code in this project wasn't written by me.
 
-- **Gun kit** (`extracted/Guns`, `src/modules`, and the disabled `SimulateBulletScript`, `MeleeEffectScript`, `GunClientScript`, `MeleeClientScript`): originally the Weapons and Tools Pack 2016 guns by **SuperEvilAzmil**, edited by **thienbao2109**.
-- **Clock sync** (`src/modules/ClockSyncHandler.luau`): by **Fluffmiceter**.
+- **Mansion** (`GEOHOMES Mansion` in Workspace): free model, door and light scripts included.
+- **Ragdoll on death** (`StarterCharacterScripts.RagdollScript`): from a community tutorial.
+
+An earlier version used a gun kit by SuperEvilAzmil and thienbao2109, and a clock sync module by Fluffmiceter. Those have been removed.
 
 If you made something in here and aren't listed, open an issue and I'll add you.
