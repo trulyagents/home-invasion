@@ -8,7 +8,7 @@ local remote = ReplicatedStorage:WaitForChild("HomeInvasionWeapons"):WaitForChil
 local BINDING = "HomeInvasionFirstPersonArms"
 local context
 local counts = { Equip = 0, Attack = 0, Reload = 0 }
-local ARM_THICKNESS = 0.4
+local ARM_THICKNESS = 0.65
 local armNames ={ "LeftUpperArm", "LeftLowerArm", "LeftHand", "RightUpperArm", "RightLowerArm", "RightHand" }
 local function preparePart(part)
     part.Anchored = true
