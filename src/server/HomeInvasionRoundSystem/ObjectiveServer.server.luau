@@ -47,11 +47,19 @@ local function setPower(on)
 			Ambient = Lighting.Ambient,
 			OutdoorAmbient = Lighting.OutdoorAmbient,
 		}
-		Lighting.Brightness = math.min(Lighting.Brightness, 0.3)
-		Lighting.Ambient = Color3.fromRGB(10, 10, 15)
-		Lighting.OutdoorAmbient = Color3.fromRGB(25, 25, 35)
-		for _, light in ipairs(arena:GetDescendants()) do
-			if light:IsA("Light") and light.Enabled and not light:IsDescendantOf(objectiveFolder) then
+		-- Dark enough to be scary, light enough to still find the fuse box.
+		Lighting.Brightness = math.min(Lighting.Brightness, 0.6)
+		Lighting.Ambient = Color3.fromRGB(26, 28, 38)
+		Lighting.OutdoorAmbient = Color3.fromRGB(40, 44, 60)
+		-- The whole map, not just the arena: the house's own lamps live outside it.
+		for _, light in ipairs(workspace:GetDescendants()) do
+			if
+				light:IsA("Light")
+				and light.Enabled
+				and not light:IsDescendantOf(objectiveFolder)
+				and not light:FindFirstAncestorOfClass("Tool")
+				and not (light:FindFirstAncestorOfClass("Model") and light:FindFirstAncestorOfClass("Model"):FindFirstChildOfClass("Humanoid"))
+			then
 				savedLights[light] = true
 				light.Enabled = false
 			end

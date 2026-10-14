@@ -43,8 +43,8 @@ local function refresh()
         local tool = orderedTools[index]
         button.Visible = tool ~= nil
         button.Text = tostring(index) .. "\n" .. (tool and tool.Name or "")
-        button.BackgroundColor3 = tool and tool.Parent == character and Color3.fromRGB(110, 65, 40)
-            or Color3.fromRGB(25, 28, 32)
+        button.BackgroundColor3 = tool and tool.Parent == character and Color3.fromRGB(120, 24, 20)
+            or Color3.fromRGB(28, 24, 24)
     end
 end
 

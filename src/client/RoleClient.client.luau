@@ -21,9 +21,9 @@ local function label(name, position, size, textSize)
 	text.Position = position
 	text.Size = size
 	text.BackgroundTransparency = 1
-	text.Font = Enum.Font.GothamBold
+	text.FontFace = Font.new("rbxasset://fonts/families/Oswald.json", Enum.FontWeight.Bold)
 	text.TextSize = textSize
-	text.TextColor3 = Color3.fromRGB(235, 225, 210)
+	text.TextColor3 = Color3.fromRGB(232, 225, 214)
 	text.TextStrokeTransparency = 0.4
 	text.TextWrapped = true
 	text.Visible = false
@@ -31,8 +31,9 @@ local function label(name, position, size, textSize)
 	return text
 end
 
-local banner = label("Banner", UDim2.fromScale(0.5, 0.22), UDim2.fromOffset(600, 90), 26)
-local info = label("Info", UDim2.new(0.5, 0, 1, -150), UDim2.fromOffset(600, 50), 16)
+local banner = label("Banner", UDim2.fromScale(0.5, 0.22), UDim2.fromOffset(640, 100), 32)
+-- Sits above the weapon status and notices at the bottom of the screen.
+local info = label("Info", UDim2.new(0.5, 0, 1, -212), UDim2.fromOffset(600, 44), 17)
 
 local secret = nil -- "Traitor" for the traitor, or the traitor's name for Invaders
 local bannerToken = 0

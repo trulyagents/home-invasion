@@ -21,8 +21,8 @@ local function refresh()
     gui.Header.Phase.Text = phaseNames[phase] or phase:upper()
     gui.Header.Timer.Text = seconds > 0 and string.format("%d:%02d", math.floor(seconds / 60), seconds % 60)
         or "--:--"
-    gui.Header.Timer.TextColor3 = phase == "Active" and seconds <= 30 and Color3.fromRGB(237, 108, 88)
-        or Color3.fromRGB(206, 131, 79)
+    gui.Header.Timer.TextColor3 = phase == "Active" and seconds <= 30 and Color3.fromRGB(255, 70, 55)
+        or Color3.fromRGB(196, 38, 30)
     local message = state:GetAttribute("Message") or "Waiting for players"
     if phase == "Waiting" then
         message = string.format(

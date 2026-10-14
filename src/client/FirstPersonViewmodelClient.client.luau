@@ -243,6 +243,11 @@ local function update(deltaTime)
         return
     end
     local tool = equipped(character)
+    -- Bare block fists floating in view looked worse than nothing, so arms only show with a weapon.
+    if not tool then
+        cleanup()
+        return
+    end
     if not context or context.character ~= character or context.camera ~= camera or context.tool ~= tool then
         cleanup()
         build(character, camera, tool)
