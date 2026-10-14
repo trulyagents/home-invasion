@@ -28,6 +28,7 @@ Then open the place in Studio and connect with the Rojo plugin.
 src/
   server/    ServerScriptService
   client/    StarterPlayerScripts
+notes/       my notes on how stuff works
 tools/       helper scripts (run with Lune)
 extracted/   copies of scripts that live inside models and UI (not synced)
 ```
@@ -36,3 +37,4 @@ The map, models, UI and weapon tools live in the place file, not in this repo.
 
 Code from other creators is listed in [CREDITS.md](CREDITS.md).
 
+More details are in [notes/](notes/README.md).
