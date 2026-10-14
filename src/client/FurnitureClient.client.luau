@@ -49,6 +49,12 @@ local function pointedFurniture()
         return model, hit.Position, hit.Distance
     end
 end
+-- Grabbing unequips your weapon, and Roblox can send a Cancel for the mouse button when
+-- that happens. Only treat it as a release if the button really is up.
+local function pointerDown()
+    return UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1)
+        or UserInputService.TouchEnabled and pointerHeld
+end
 local function drop()
     pointerHeld = false
     if sessionId then
@@ -98,6 +104,9 @@ ContextActionService:BindActionAtPriority("HomeInvasionFurnitureHold", function(
         end)
         return Enum.ContextActionResult.Sink
     elseif inputState == Enum.UserInputState.End or inputState == Enum.UserInputState.Cancel then
+        if inputState == Enum.UserInputState.Cancel and pointerDown() then
+            return Enum.ContextActionResult.Pass
+        end
         if pointerHeld or heldModel or pending then
             drop()
             return Enum.ContextActionResult.Sink
@@ -124,10 +133,11 @@ remote.OnClientEvent:Connect(function(action, modelOrMessage, id)
         pending = false
         player:SetAttribute("FurnitureGrabPending", nil)
         heldModel, sessionId = modelOrMessage, id
-        if not pointerHeld then
+        if not pointerHeld and not pointerDown() then
             drop()
             return
         end
+        pointerHeld = true
         highlight.Adornee = heldModel
         highlight.Enabled = true
         panel.Status.Text = "Hold left click: carry / drag • Q / R: rotate • release: drop"
@@ -153,7 +163,8 @@ RunService.RenderStepped:Connect(function(deltaTime)
     elapsed = 0
     hint.Visible = false
     if heldModel and sessionId then
-        if not allowed() or not heldModel:IsDescendantOf(workspace) then
+        -- Catches a release that never sent an End event.
+        if not allowed() or not heldModel:IsDescendantOf(workspace) or not UserInputService.TouchEnabled and not pointerDown() then
             drop()
             return
         end
