@@ -8,7 +8,8 @@ local remote = ReplicatedStorage:WaitForChild("HomeInvasionWeapons"):WaitForChil
 local BINDING = "HomeInvasionFirstPersonArms"
 local context
 local counts = { Equip = 0, Attack = 0, Reload = 0 }
-local armNames = { "LeftUpperArm", "LeftLowerArm", "LeftHand", "RightUpperArm", "RightLowerArm", "RightHand" }
+local ARM_THICKNESS = 0.4
+local armNames ={ "LeftUpperArm", "LeftLowerArm", "LeftHand", "RightUpperArm", "RightLowerArm", "RightHand" }
 local function preparePart(part)
     part.Anchored = true
     part.CanCollide = false
@@ -71,6 +72,9 @@ local function replaceArms(model, character)
         end
         preparePart(template)
         template.Transparency = 0
+        -- Full-size rig arms this close to the camera fill half the screen, so slim them down.
+        local thickness = name:find("Hand") and ARM_THICKNESS * 1.1 or ARM_THICKNESS
+        template.Size = Vector3.new(thickness, template.Size.Y, thickness)
     end
     local shirt = character:FindFirstChildOfClass("Shirt")
     if shirt then

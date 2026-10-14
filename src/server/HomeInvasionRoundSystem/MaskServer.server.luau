@@ -71,8 +71,13 @@ local function wearMask(player, character)
 	if player:GetAttribute("RoundRole") ~= "Invaders" or not looks[maskName] then
 		return
 	end
+	-- Loading the avatar swaps out the head, which would break the mask's welds.
+	local deadline = os.clock() + 10
+	while not player:HasAppearanceLoaded() and os.clock() < deadline and player.Character == character do
+		task.wait(0.1)
+	end
 	local head = character:WaitForChild("Head", 10)
-	if not head or character:FindFirstChild("AnimalMask") then
+	if not head or player.Character ~= character or character:FindFirstChild("AnimalMask") then
 		return
 	end
 	local custom = ServerStorage:FindFirstChild("HomeInvasionMasks")
