@@ -7,6 +7,7 @@ local Teams = game:GetService("Teams")
 local TweenService = game:GetService("TweenService")
 
 local Config = require(script.Parent.Config)
+local RoundShared = require(game.ServerScriptService:WaitForChild("HomeInvasionRoundSystem"):WaitForChild("RoundShared"))
 local AnimationService = require(game.ServerScriptService.HomeInvasionAnimationSystem.AnimationService)
 local roundState = ReplicatedStorage:WaitForChild("HomeInvasionRoundState")
 local remote = ReplicatedStorage.HomeInvasionWeapons:WaitForChild("Interaction")
@@ -26,6 +27,50 @@ local playerConnections = {}
 local requestBudgets = {}
 local spawnedRoundId = nil
 local invaderLoadoutRounds = {}
+
+-- Builds a simple stand-in tool for weapons that don't have a model in ServerStorage yet.
+local function buildPlaceholderTool(weaponId, definition)
+    local look = definition.Placeholder
+    local tool = Instance.new("Tool")
+    tool.Name = weaponId
+    tool.CanBeDropped = false
+    tool:SetAttribute("WeaponId", weaponId)
+    tool:SetAttribute("HomeInvasionWeapon", true)
+    local handle = Instance.new("Part")
+    handle.Name = "Handle"
+    handle.Size = Vector3.new(0.25, 0.9, 0.25)
+    handle.Color = look.Handle
+    handle.Material = Enum.Material.Wood
+    handle.CanCollide = false
+    handle.Massless = true
+    handle.Parent = tool
+    local head = Instance.new("Part")
+    head.Name = "Head"
+    head.Size = look.HeavyHead and Vector3.new(0.5, 0.45, 0.5) or Vector3.new(0.12, look.Length, 0.3)
+    head.Color = look.Head
+    head.Material = Enum.Material.Metal
+    head.CanCollide = false
+    head.Massless = true
+    head.CFrame = handle.CFrame * CFrame.new(0, 0.45 + head.Size.Y / 2, 0)
+    head.Parent = tool
+    local weld = Instance.new("WeldConstraint")
+    weld.Part0 = handle
+    weld.Part1 = head
+    weld.Parent = head
+    local crowbar = templates:FindFirstChild("Crowbar")
+    local swing = crowbar and crowbar:FindFirstChild("Handle") and crowbar.Handle:FindFirstChild("AttackSound")
+    if swing then
+        swing:Clone().Parent = handle
+    end
+    tool.Grip = CFrame.new(0, -0.2, 0)
+    tool.Parent = templates
+end
+
+for weaponId, definition in pairs(Config.Weapons) do
+    if definition.Placeholder and not templates:FindFirstChild(weaponId) then
+        buildPlaceholderTool(weaponId, definition)
+    end
+end
 
 local function livingCharacter(player)
     local character = player.Character
@@ -131,7 +176,7 @@ local function spawnRoundWeapons()
             availableMarkers[swapIndex], availableMarkers[index]
     end
     local markerIndex = 0
-    for _, weaponId in ipairs({ "Rifle", "Crowbar" }) do
+    for _, weaponId in ipairs(Config.HouseWeapons) do
         local definition = Config.Weapons[weaponId]
         for _ = 1, definition.SpawnCount do
             markerIndex += 1
@@ -375,7 +420,14 @@ local function enemyHumanoid(attacker, model)
     end
     local targetPlayer = Players:GetPlayerFromCharacter(model)
     if targetPlayer then
-        if not isParticipant(targetPlayer) or targetPlayer.Team == attacker.Team then
+        if not isParticipant(targetPlayer) then
+            return nil
+        end
+        -- The traitor can hurt Protectors. Invaders can't hurt the traitor.
+        if targetPlayer.Team == attacker.Team and not RoundShared.isTraitor(attacker) then
+            return nil
+        end
+        if RoundShared.isTraitor(targetPlayer) and attacker.Team == Teams.Invaders then
             return nil
         end
     elseif

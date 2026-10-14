@@ -4,6 +4,8 @@ return {
         { WeaponId = "Machete", DisplayName = "Machete" },
         { WeaponId = "Crowbar", DisplayName = "Crowbar" },
     },
+    -- Weapons that spawn around the house, in spawn order.
+    HouseWeapons = { "KitchenKnife", "MeatTenderizer", "Screwdriver", "FireplacePoker", "Crowbar" },
     PickupDistance = 9,
     MaximumWeapons = 2,
     RequestBurst = 20,
@@ -27,10 +29,49 @@ return {
             AttackCooldown = 0.55,
             MinimumFacingDot = 0.45,
         },
+        -- Household weapons. Nobody in the house owns a gun.
+        -- `Placeholder` describes a simple block model used until a real one is made in Studio.
+        KitchenKnife = {
+            DisplayName = "Kitchen Knife",
+            SpawnCount = 2,
+            Damage = 22,
+            Range = 4.5,
+            AttackCooldown = 0.45,
+            MinimumFacingDot = 0.5,
+            Placeholder = { Handle = Color3.fromRGB(40, 30, 25), Head = Color3.fromRGB(200, 205, 210), Length = 1.1 },
+        },
+        MeatTenderizer = {
+            DisplayName = "Meat Tenderizer",
+            SpawnCount = 2,
+            Damage = 30,
+            Range = 4.5,
+            AttackCooldown = 0.8,
+            MinimumFacingDot = 0.45,
+            Placeholder = { Handle = Color3.fromRGB(120, 85, 50), Head = Color3.fromRGB(160, 160, 165), Length = 1.2, HeavyHead = true },
+        },
+        Screwdriver = {
+            DisplayName = "Screwdriver",
+            SpawnCount = 1,
+            Damage = 18,
+            Range = 4,
+            AttackCooldown = 0.35,
+            MinimumFacingDot = 0.55,
+            Placeholder = { Handle = Color3.fromRGB(200, 60, 40), Head = Color3.fromRGB(170, 170, 175), Length = 0.9 },
+        },
+        FireplacePoker = {
+            DisplayName = "Fireplace Poker",
+            SpawnCount = 1,
+            Damage = 26,
+            Range = 6,
+            AttackCooldown = 0.75,
+            MinimumFacingDot = 0.4,
+            Placeholder = { Handle = Color3.fromRGB(30, 30, 30), Head = Color3.fromRGB(45, 45, 45), Length = 2.6 },
+        },
+        -- Old ranged weapon, no longer spawned. Kept so old saves and tools don't break.
         Rifle = {
             DisplayName = "House Rifle",
             AttackKind = "Ranged",
-            SpawnCount = 4,
+            SpawnCount = 0,
             Damage = 25,
             Range = 200,
             AttackCooldown = 0.35,
@@ -40,7 +81,7 @@ return {
         },
         Crowbar = {
             DisplayName = "Crowbar",
-            SpawnCount = 4,
+            SpawnCount = 2,
             Damage = 20,
             BarricadeDamage = 25,
             DoorDamage = 25,

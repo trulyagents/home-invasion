@@ -122,14 +122,19 @@ local function build(character, camera, tool)
         previousCamera = camera.CFrame,
     }
     current.weaponId = tool and tool:GetAttribute("WeaponId") or "Unarmed"
-    current.profile = animations.Profiles[current.weaponId] or animations.Profiles.Unarmed
+    -- Weapons without their own first-person model borrow the crowbar's until one is made.
+    local viewId = current.weaponId
+    if tool and not assets.Weapons:FindFirstChild(viewId) then
+        viewId = "Crowbar"
+    end
+    current.profile = animations.Profiles[viewId] or animations.Profiles.Unarmed
     model:SetAttribute("WeaponId", current.weaponId)
     model:SetAttribute("Action", "Idle")
     for name, count in counts do
         model:SetAttribute(name .. "Count", count)
     end
     if tool then
-        local weapon = assets.Weapons[current.weaponId]:Clone()
+        local weapon = assets.Weapons[viewId]:Clone()
         weapon.Parent = model
         current.weapon = weapon
         current.rightGrip = weapon.Handle.RightGrip

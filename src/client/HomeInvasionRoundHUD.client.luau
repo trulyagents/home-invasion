@@ -28,15 +28,15 @@ local function refresh()
         message = string.format(
             "Waiting for players: %d / %d",
             state:GetAttribute("PlayerCount") or 0,
-            state:GetAttribute("MinimumPlayers") or 11
+            state:GetAttribute("MinimumPlayers") or 4
         )
     elseif phase == "Preparation" then
-        message = role == "Protectors" and "Find weapons. Lock doors. Barricade the house."
+        message = role == "Protectors" and "Find weapons and the car keys. Lock doors. Barricade the house."
             or role == "Invaders" and "Check your loadout. The house opens when preparation ends."
             or "The teams are preparing. You will join the next round."
     elseif phase == "Active" then
-        message = role == "Protectors" and "Survive the timer or eliminate the invaders."
-            or role == "Invaders" and "Breach the house and eliminate every protector."
+        message = role == "Protectors" and "Escape with the car keys, or take out the invaders."
+            or role == "Invaders" and "Get inside. Nobody leaves before dawn."
             or player:GetAttribute("EliminatedRoundId") == state:GetAttribute("RoundId") and "You were eliminated. Spectate the remaining players or wait in the lobby."
             or "Round in progress. You will join the next round."
     end
@@ -48,7 +48,7 @@ local function refresh()
                 state:GetAttribute("ProtectorsAlive") or 0
             )
         or state:GetAttribute("StudioSoloRound") and "STUDIO SOLO PREVIEW"
-        or "3 INVADERS  /  8 PROTECTORS"
+        or "INVADERS  VS  PROTECTORS"
     local results = gui.Results
     results.Visible = phase == "Results"
     local winner = state:GetAttribute("WinnerTeam")
@@ -56,10 +56,9 @@ local function refresh()
         or winner == "Protectors" and "THE HOUSE SURVIVED"
         or winner == "StudioSolo" and "PREVIEW COMPLETE"
         or "ROUND OVER"
-    results.Reason.Text = state:GetAttribute("ResultReason") == "TimeExpired"
-            and "Time ran out. The protectors held the house."
-        or state:GetAttribute("Message")
-        or "Round complete."
+    local traitorName = state:GetAttribute("TraitorName")
+    results.Reason.Text = (state:GetAttribute("Message") or "Round complete.")
+        .. (traitorName and ("\nThe traitor was " .. traitorName .. ".") or "")
     results.Survivors.Text = string.format(
         "Survivors: %d invaders  •  %d protectors",
         state:GetAttribute("FinalInvadersAlive") or 0,
@@ -68,8 +67,8 @@ local function refresh()
     results.NextRound.Text = string.format("Next lobby countdown in %d seconds", seconds)
     gui.Help.Visible = phase ~= "Results" and helpRequested
     gui.Help.Body.Text = role == "Invaders"
-            and "1 / 2 / 3: equip weapons\nClick: attack • R: reload\nRight mouse: aim\nCrowbar: breach doors and furniture\nE: open unlocked doors"
-        or "F: collect a house weapon\nHold left click: carry / drag furniture\nQ / R: rotate held furniture\nRelease click: drop • E: door • L: lock\n1 / 2 / 3: equip • click: attack\nR: reload • right mouse: aim"
+            and "1 / 2 / 3: equip weapons\nClick: attack • R: reload\nRight mouse: aim\nCrowbar: breach doors and furniture\nE: open unlocked doors • G: cut the power"
+        or "F: pick up weapons and car keys\nG: fuse box\nHold left click: carry / drag furniture\nQ / R: rotate held furniture\nRelease click: drop • E: door • L: lock\n1 / 2 / 3: equip • click: attack\nR: reload • right mouse: aim"
 end
 UserInputService.InputBegan:Connect(function(input, processed)
     if not processed and not UserInputService:GetFocusedTextBox() and input.KeyCode == Enum.KeyCode.H then

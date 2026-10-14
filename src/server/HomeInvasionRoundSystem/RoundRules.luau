@@ -1,5 +1,6 @@
 local RoundRules = {}
 
+-- `protectorsAlive` should not include the traitor.
 function RoundRules.eliminationResult(invadersAlive, protectorsAlive, studioSolo)
     if invadersAlive == 0 and protectorsAlive == 0 then
         return {
@@ -16,12 +17,22 @@ function RoundRules.eliminationResult(invadersAlive, protectorsAlive, studioSolo
     return nil
 end
 
-function RoundRules.timeExpiredResult(studioSolo)
+function RoundRules.escapeResult(player)
     return {
-        winner = studioSolo and "StudioSolo" or "Protectors",
+        winner = "Protectors",
+        reason = "Escaped",
+        message = player.DisplayName .. " escaped with the car keys",
+    }
+end
+
+function RoundRules.timeExpiredResult(studioSolo, timeoutWinner)
+    if studioSolo then
+        return { winner = "StudioSolo", reason = "TimeExpired", message = "Solo test complete: time expired" }
+    end
+    return {
+        winner = timeoutWinner,
         reason = "TimeExpired",
-        message = studioSolo and "Solo test complete: time expired"
-            or "Protectors win: time expired",
+        message = timeoutWinner == "Invaders" and "Nobody escaped before dawn" or "The protectors held out until dawn",
     }
 end
 

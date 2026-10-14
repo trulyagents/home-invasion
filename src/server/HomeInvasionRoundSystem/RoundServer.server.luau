@@ -5,6 +5,7 @@ local RunService = game:GetService("RunService")
 
 local Config = require(script.Parent.Config)
 local RoundRules = require(script.Parent.RoundRules)
+local RoundShared = require(script.Parent.RoundShared)
 local arena = workspace:WaitForChild("HomeInvasionPrototype")
 local state = ReplicatedStorage:WaitForChild("HomeInvasionRoundState")
 local lobbySpawn = arena.Lobby.Spawn
@@ -15,7 +16,8 @@ local playerConnections = {}
 local spawnJobs = {}
 local roundId = 0
 local phase = "Waiting"
-local livePlayerCount = Config.InvaderCount + Config.ProtectorCount
+local livePlayerCount = Config.MinimumPlayers
+local participantCount = 0
 local soloRound = false
 
 -- This bypass cannot run in a live server, even when the config is published.
@@ -31,6 +33,11 @@ end
 local minimumPlayers = getRequiredPlayerCount()
 
 Players.CharacterAutoLoads = false
+
+-- Tells individual players about secret roles. Never broadcast.
+local secretRoleRemote = state:FindFirstChild("SecretRole") or Instance.new("RemoteEvent")
+secretRoleRemote.Name = "SecretRole"
+secretRoleRemote.Parent = state
 
 local function updateState(nextPhase, seconds, message)
     phase = nextPhase
@@ -131,6 +138,8 @@ local function sendToLobby(player)
     player:SetAttribute("InRound", false)
     player:SetAttribute("ParticipantRoundId", nil)
     player:SetAttribute("RoundRole", "Lobby")
+    player:SetAttribute("Survivor", nil)
+    player:SetAttribute("Mask", nil)
 end
 
 local function setupPlayer(player)
@@ -192,7 +201,7 @@ for _, player in ipairs(Players:GetPlayers()) do
 end
 
 local function countSurvivors()
-    local invaders, protectors = 0, 0
+    local invaders, protectors, loyal = 0, 0, 0
     for player, entry in pairs(roster) do
         -- Still spawning counts as alive; once ready, require a living humanoid.
         local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
@@ -201,18 +210,22 @@ local function countSurvivors()
             if entry.role == "Invaders" then
                 invaders += 1
             else
+                -- The public count includes the traitor so nobody can work out who it is.
                 protectors += 1
+                if not RoundShared.isTraitor(player) then
+                    loyal += 1
+                end
             end
         end
     end
     state:SetAttribute("InvadersAlive", invaders)
     state:SetAttribute("ProtectorsAlive", protectors)
-    return invaders, protectors
+    return invaders, protectors, loyal
 end
 
 local function eliminationResult()
-    local invaders, protectors = countSurvivors()
-    return RoundRules.eliminationResult(invaders, protectors, soloRound)
+    local invaders, _, loyal = countSurvivors()
+    return RoundRules.eliminationResult(invaders, loyal, soloRound)
 end
 
 local function recordResult(result)
@@ -223,6 +236,7 @@ local function recordResult(result)
     state:SetAttribute("ResultRoundId", roundId)
     state:SetAttribute("FinalInvadersAlive", invaders)
     state:SetAttribute("FinalProtectorsAlive", protectors)
+    state:SetAttribute("TraitorName", RoundShared.traitor and RoundShared.traitor.DisplayName or nil)
 end
 
 local function returnEveryoneToLobby()
@@ -246,6 +260,13 @@ local function beginRound()
     if #candidates < minimumPlayers then
         return false
     end
+    participantCount = math.min(#candidates, Config.MaxInvaders + Config.MaxProtectors)
+    local invaderCount = math.clamp(
+        math.floor(participantCount / Config.PlayersPerInvader),
+        1,
+        Config.MaxInvaders
+    )
+    participantCount = math.min(participantCount, invaderCount + Config.MaxProtectors)
 
     for index = #candidates, 2, -1 do
         local swapIndex = random:NextInteger(1, index)
@@ -257,11 +278,14 @@ local function beginRound()
     state:SetAttribute("ResultRoundId", nil)
     state:SetAttribute("FinalInvadersAlive", nil)
     state:SetAttribute("FinalProtectorsAlive", nil)
-    for index = 1, minimumPlayers do
+    state:SetAttribute("TraitorName", nil)
+    RoundShared.reset(roundId)
+    local protectorList = {}
+    for index = 1, participantCount do
         local player = candidates[index]
-        local isInvader = index <= Config.InvaderCount
+        local isInvader = index <= invaderCount
         local role = isInvader and "Invaders" or "Protectors"
-        local spawnIndex = isInvader and index or index - Config.InvaderCount
+        local spawnIndex = isInvader and index or index - invaderCount
         if soloRound then
             -- Alternate roles so repeated solo rounds exercise both sets of spawns.
             role = roundId % 2 == 1 and "Protectors" or "Invaders"
@@ -270,6 +294,11 @@ local function beginRound()
         player:SetAttribute("ParticipantRoundId", roundId)
         player:SetAttribute("EliminatedRoundId", nil)
         player:SetAttribute("LastRoundRole", role)
+        if role == "Invaders" then
+            player:SetAttribute("Mask", Config.Masks[(spawnIndex - 1) % #Config.Masks + 1])
+        else
+            table.insert(protectorList, player)
+        end
         roster[player] = {
             role = role,
             spawn = arena.Spawns[role][tostring(spawnIndex)],
@@ -277,6 +306,16 @@ local function beginRound()
         }
         requestSpawn(player)
     end
+
+    -- Secret roles. Candidates are already shuffled, so the list order is random.
+    if not soloRound and #protectorList >= Config.TraitorMinimumProtectors then
+        RoundShared.traitor = table.remove(protectorList, 1)
+    end
+    RoundShared.survivor = protectorList[1]
+    if RoundShared.survivor then
+        RoundShared.survivor:SetAttribute("Survivor", true)
+    end
+
     updateState("Starting", 0, "Spawning teams...")
     local deadline = os.clock() + Config.SpawnTimeoutSeconds
     repeat
@@ -286,11 +325,20 @@ local function beginRound()
                 readyCount += 1
             end
         end
-        if readyCount == minimumPlayers then
+        if readyCount == participantCount then
+            local traitor = RoundShared.traitor
+            if traitor then
+                secretRoleRemote:FireClient(traitor, "Traitor")
+                for player, entry in pairs(roster) do
+                    if entry.role == "Invaders" then
+                        secretRoleRemote:FireClient(player, "TraitorIs", traitor.DisplayName)
+                    end
+                end
+            end
             return true
         end
         local invaders, protectors = countSurvivors()
-        if invaders + protectors < minimumPlayers then
+        if invaders + protectors < participantCount then
             break
         end
         task.wait(0.2)
@@ -342,7 +390,7 @@ while true do
     if countdownComplete and beginRound() then
         local result = runPreparation()
         if not result then
-            result = RoundRules.timeExpiredResult(soloRound)
+            result = RoundRules.timeExpiredResult(soloRound, Config.TimeoutWinner)
             local roundSeconds = soloRound and Config.StudioSoloRoundSeconds or Config.RoundSeconds
             local deadline = os.clock() + roundSeconds
             updateState("Active", roundSeconds, soloRound and "Studio solo test" or "Invasion in progress")
@@ -351,6 +399,10 @@ while true do
             end
 
             while true do
+                if RoundShared.escapedRoundId == roundId and RoundShared.escapedBy then
+                    result = RoundRules.escapeResult(RoundShared.escapedBy)
+                    break
+                end
                 local elimination = eliminationResult()
                 if elimination then
                     result = elimination

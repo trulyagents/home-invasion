@@ -7,7 +7,15 @@ local gui = player:WaitForChild("PlayerGui"):WaitForChild("HomeInvasionHotbar")
 local slots = {}
 local orderedTools = {}
 local keys = { [Enum.KeyCode.One] = 1, [Enum.KeyCode.Two] = 2, [Enum.KeyCode.Three] = 3 }
-local priorities = { Crossbow = 1, Machete = 2, Rifle = 1, Crowbar = 3 }
+local priorities = {
+    Crossbow = 1,
+    Machete = 2,
+    Crowbar = 3,
+    KitchenKnife = 1,
+    MeatTenderizer = 1,
+    FireplacePoker = 1,
+    Screwdriver = 2,
+}
 
 local function refresh()
     local backpack = player:FindFirstChildOfClass("Backpack")
