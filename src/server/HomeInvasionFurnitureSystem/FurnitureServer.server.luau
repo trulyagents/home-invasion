@@ -220,7 +220,7 @@ local function grab(player, model, hitPosition)
 end
 
 remote.OnServerEvent:Connect(function(player, action, sessionIdOrModel, value)
-    -- Releasing never waits behind an input budget, and stale sessions cannot drop a new grab.
+    -- letting go always works, even when rate limited, and an old grab can't drop a new one
     if action == "Drop" then
         local session = sessions[player]
         if session and session.id == sessionIdOrModel then
@@ -461,7 +461,7 @@ local function slideMovement(current, size, translation, castParams, overlapPara
 end
 
 -- Furniture remains anchored. The server moves a solid collider after checking the
--- swept path and destination, so a client cannot fling or teleport a barricade.
+-- swept path and destination, so a client can't fling or teleport a barricade.
 local function stepSession(player, session, deltaTime)
     local root = canInteract(player)
     local record = session.record

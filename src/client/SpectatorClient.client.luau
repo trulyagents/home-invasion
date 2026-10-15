@@ -143,8 +143,8 @@ toggleButton.Activated:Connect(function()
     refresh()
 end)
 
--- Revalidate targets after deaths, disconnects, character replacements and lobby respawns.
--- The bounded quarter-second pass also repairs Core camera resets after a lobby respawn.
+-- recheck who's watchable after deaths, leaves and respawns. running it 4x a second
+-- also fixes the camera when roblox resets it after a lobby respawn
 local accumulatedSeconds = 0
 RunService.Heartbeat:Connect(function(deltaTime)
     accumulatedSeconds += deltaTime

@@ -374,7 +374,7 @@ local function pickUp(player, model)
     if not backpack then
         return
     end
-    -- Claim and grant without yielding so two requests cannot collect one pickup.
+    -- claim and give it in one go (no yielding) so two players can't grab the same pickup
     local tool = grantWeapon(player, drop.weaponId, drop.roundId)
     if not tool then
         return

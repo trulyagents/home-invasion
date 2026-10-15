@@ -22,7 +22,7 @@ local function syncRound()
     end
 end
 
--- Weapons go down at the start of preparation. Give them up to 3s so we don't steal a weapon spot.
+-- Weapons go down at the start of preparation. Give them up to 3s so a task item doesn't take a weapon spot.
 local function waitForWeapons()
     local pickups = arena:FindFirstChild("WeaponPickups")
     local roundId = roundState:GetAttribute("RoundId")

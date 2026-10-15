@@ -20,7 +20,7 @@ local livePlayerCount = Config.MinimumPlayers
 local participantCount = 0
 local soloRound = false
 
--- This bypass cannot run in a live server, even when the config is published.
+-- only ever works in studio, even if the config gets published with it on
 local studioSoloEnabled = RunService:IsStudio() and Config.StudioSoloEnabled
 
 local function getRequiredPlayerCount()
@@ -67,7 +67,7 @@ local function holdInvader(player, entry, character)
     end
     local root = character:FindFirstChild("HumanoidRootPart")
     if root and not entry.heldRoot then
-        -- Anchoring on the server prevents entry; a client movement setting alone would not.
+        -- anchor on the server, a client side movement lock is easy to get around
         entry.previousRootAnchored = root.Anchored
         entry.heldRoot = root
         root.Anchored = true
@@ -75,7 +75,7 @@ local function holdInvader(player, entry, character)
     end
 end
 
--- A newer request supersedes a pending character load. Loads never overlap for a player.
+-- a newer spawn request replaces a pending one. one load at a time per player
 local function requestSpawn(player)
     local job = spawnJobs[player]
     if not job then
