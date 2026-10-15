@@ -4,7 +4,6 @@ Some code in this project wasn't written by me.
 
 - **Mansion** (`GEOHOMES Mansion` in Workspace): free model, door and light scripts included.
 - **Free models** (scripts stripped, resized):
-  - Fire poker by 104_Studios
   - Fuse box by Psders
   - Car key by TheCoBlue
   - Land Cruiser (escape car) by tomatotincan
