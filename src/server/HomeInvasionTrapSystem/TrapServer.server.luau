@@ -59,6 +59,21 @@ local function buildTrap(position)
     board.Anchored = true
     board.CanCollide = false
     board.CFrame = CFrame.new(position + Vector3.new(0, 0.08, 0))
+    -- the board stays as the touch hitbox, the model is just looks
+    local models = game.ServerStorage:FindFirstChild("HomeInvasionTrapModels")
+    local model = models and models:FindFirstChild("NailBoard")
+    if model then
+        board.Transparency = 1
+        local visual = model:Clone()
+        visual.Name = "Visual"
+        visual.Anchored = true
+        visual.CanCollide = false
+        visual.CanTouch = false
+        visual.CanQuery = false
+        visual.CFrame = CFrame.new(position + Vector3.new(0, visual.Size.Y / 2, 0)) * CFrame.Angles(0, math.random() * math.pi * 2, 0)
+        visual.Parent = board
+        return board
+    end
     for i = 1, 9 do
         local nail = Instance.new("Part")
         nail.Name = "Nail"

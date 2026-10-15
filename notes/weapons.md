@@ -15,12 +15,13 @@ files
 - FirstPersonViewmodelClient - fp arms + weapon. rig arms colored to skin (avatar arms broke w/ layered clothing). slimmer than normal or they cover the screen. hidden when unarmed
 - GameFeelClient - camera kick on swing/hit, red edges + shake when hurt
 
-house weapon models (free models, see CREDITS)
+house weapon models (free models, see CREDITS, plus ai-generated ones)
 - world tool: ServerStorage.HomeInvasionWeaponTemplates.<id>. invisible Handle along Y (tip up), visuals welded on, Tool.Grip = where the hand goes
 - fp copy: ReplicatedStorage.HomeInvasionFirstPersonAssets.Weapons.<id> = same thing at 0.72 scale with RightGrip/LeftGrip on the Handle
 - each needs a pose in MotionProfiles or it falls back to unarmed
 - each Handle has AttackSound (swing) and HitSound (plays when a melee swing lands). ProSoundEffects library sounds
 - meat tenderizer is built from parts (wood grip, steel head, spikes) welded to the Handle, in both copies. old hammer mesh backed up in ServerStorage.HammerBackup. blender version in models/
+- knife is an ai mesh. screwdriver is an ai mesh handle + part shaft and tip. old ones in ServerStorage.OldModelsBackup
 
 old gun kit is gone. tools/cleanup-place.luau removes leftovers
 

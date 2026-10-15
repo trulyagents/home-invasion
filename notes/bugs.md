@@ -30,3 +30,5 @@ not actually bugs
 - "no hitmarkers" - DemoPresentationClient has them
 - "invaders lose loadout on death" - dying takes you out anyway
 - "no range check on door damage" - only the weapon server calls it
+
+welded part won't move - setting CFrame on a part with a WeldConstraint drags the whole assembly. disable the weld, move it, re-enable

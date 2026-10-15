@@ -5,6 +5,7 @@ teams: 1 invader per 4 players (1-3), rest protectors (max 8). Config
 masks
 - lamb / fox / tiger on invaders
 - models in ServerStorage.HomeInvasionMasks, pivot = center of head. missing one = block fallback
+- masks are ai-generated meshes (studio mesh gen), face -Z. old ones in ServerStorage.OldModelsBackup
 - has to wait for avatar to load or the head gets swapped and the mask falls off the map
 
 traitor
@@ -15,6 +16,7 @@ traitor
 
 survivor
 - T = nail trap, 3 per round. hurts + slows first invader. TrapSystem Config
+- trap looks = ServerStorage.HomeInvasionTrapModels.NailBoard (ai mesh). invisible board under it is the hitbox. missing = plain block board
 
 keys + escape
 - keys spawn on a random weapon spot that no weapon took (fuse box too). waits up to 3s for weapons to spawn first. bring them to the ESCAPE pad = protectors win
