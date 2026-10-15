@@ -157,9 +157,21 @@ local function interact(player, record, action)
     if not reachable then
         return
     end
+    if action == "Pick" then
+        if player.Team ~= Teams.Invaders or not record.locked or record.open or record.picking then
+            return
+        end
+        record.picking = { player = player, started = now }
+        notify(player, "Picking the lock... stay close")
+        return
+    end
     if action == "Lock" then
         if player.Team ~= Teams.Protectors then
             return
+        end
+        local noise = game:GetService("ServerStorage"):FindFirstChild("HomeInvasionNoise")
+        if noise then
+            noise:Fire(record.collider.Position, "lock")
         end
         if record.open then
             notify(player, "Close the door before locking it.")
@@ -281,7 +293,7 @@ for _, model in doorsFolder:GetChildren() do
     end
 end
 remote.OnServerEvent:Connect(function(player, action, model)
-    if (action ~= "Open" and action ~= "Lock") or typeof(model) ~= "Instance" then
+    if (action ~= "Open" and action ~= "Lock" and action ~= "Pick") or typeof(model) ~= "Instance" then
         return
     end
     local record = records[model]
@@ -292,6 +304,25 @@ end)
 RunService.Heartbeat:Connect(function()
     local now = os.clock()
     for _, record in pairs(records) do
+        local picking = record.picking
+        if picking and now - picking.started >= Config.PickSeconds then
+            record.picking = nil
+            local root = validPlayer(picking.player)
+            if
+                root
+                and record.locked
+                and not record.broken
+                and picking.player.Team == Teams.Invaders
+                and (root.Position - record.collider.Position).Magnitude <= Config.InteractionDistance + 1
+            then
+                -- no lock sound, picking is meant to be quiet
+                record.locked = false
+                publish(record)
+                notify(picking.player, "Lock picked")
+            else
+                notify(picking.player, "Lock pick interrupted")
+            end
+        end
         local motion = record.motion
         if motion then
             local alpha = math.clamp((now - motion.started) / MOVE_SECONDS, 0, 1)
@@ -352,6 +383,7 @@ damageDoor.Parent = script.Parent
 local function resetDoors()
     for _, record in pairs(records) do
         record.motion = nil
+        record.picking = nil
         record.locked, record.open, record.broken = false, false, false
         record.health = Config.DoorHealth
         record.angle = record.defaultAngle

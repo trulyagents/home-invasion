@@ -33,7 +33,9 @@ end
 
 local banner = label("Banner", UDim2.fromScale(0.5, 0.22), UDim2.fromOffset(640, 100), 32)
 -- Sits above the weapon status and notices at the bottom of the screen.
-local info = label("Info", UDim2.new(0.5, 0, 1, -212), UDim2.fromOffset(600, 44), 17)
+local info = label("Info", UDim2.new(0.5, 0, 1, -168), UDim2.fromOffset(600, 120), 17)
+info.AnchorPoint = Vector2.new(0.5, 1)
+info.TextYAlignment = Enum.TextYAlignment.Bottom
 
 local secret = nil -- "Traitor" for the traitor, or the traitor's name for Invaders
 local bannerToken = 0
@@ -75,8 +77,25 @@ local function refresh()
     elseif phase == "Active" and state:GetAttribute("KeysHolder") then
         table.insert(lines, state:GetAttribute("KeysHolder") .. " has the car keys")
     end
-    if phase == "Active" and state:GetAttribute("PowerOn") == false and player:GetAttribute("RoundRole") == "Protectors" then
+    local protector = player:GetAttribute("RoundRole") == "Protectors"
+    if phase == "Active" and state:GetAttribute("PowerOn") == false and protector then
         table.insert(lines, "The power is out. Find the fuse box (G).")
+    end
+    if player:GetAttribute("Hidden") then
+        table.insert(lines, "You're hiding. Press E to come out.")
+    end
+    if protector and player:GetAttribute("HasFuel") then
+        table.insert(lines, "You have the gas can. Take it to the car.")
+    elseif protector and phase == "Active" and state:GetAttribute("CarFueled") == false then
+        table.insert(lines, "The car needs gas. Find the gas can.")
+    end
+    local clues = state:GetAttribute("SafeClues")
+    if protector and clues and not state:GetAttribute("SafeOpen") then
+        table.insert(lines, "Safe code: " .. clues)
+    end
+    local help = state:GetAttribute("HelpArrivesIn")
+    if phase == "Active" and help then
+        table.insert(lines, string.format("Police arrive in %d:%02d", help // 60, help % 60))
     end
     info.Text = table.concat(lines, "\n")
     info.Visible = #lines > 0

@@ -5,6 +5,7 @@ server runs everything. clients just read attributes on ReplicatedStorage.HomeIn
 waiting > intermission > starting > preparation > active > results
 
 - needs 4 players. in studio solo works and flips your team every round
+- intermission waits until everyone has a character in the lobby first (studio avatar loads can take 20s+)
 - prep: protectors loot/barricade, invaders frozen
 - active: invaders let in, power cuts
 - protectors win = escape with keys or kill all invaders

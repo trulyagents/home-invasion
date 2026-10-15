@@ -21,3 +21,4 @@ known
 - doors choppy when laggy
 - 9 studs is hardcoded in the clients
 - broken doors/furniture records never cleaned up (small leak)
+- invaders can pick a locked door with L (5s, quiet) instead of breaking it

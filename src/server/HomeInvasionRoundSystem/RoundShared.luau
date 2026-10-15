@@ -5,6 +5,7 @@ local RoundShared = {
     survivor = nil, -- Protector who can set traps
     escapedRoundId = nil, -- set when a Protector escapes with the keys
     escapedBy = nil,
+    helpArrivedRoundId = nil, -- set when the police show up after a phone call
 }
 
 function RoundShared.reset(roundId)
@@ -13,6 +14,7 @@ function RoundShared.reset(roundId)
     RoundShared.survivor = nil
     RoundShared.escapedRoundId = nil
     RoundShared.escapedBy = nil
+    RoundShared.helpArrivedRoundId = nil
 end
 
 function RoundShared.isTraitor(player)

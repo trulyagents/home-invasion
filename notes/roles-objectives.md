@@ -19,7 +19,8 @@ survivor
 - trap looks = ServerStorage.HomeInvasionTrapModels.NailBoard (ai mesh). invisible board under it is the hitbox. missing = plain block board
 
 keys + escape
-- keys spawn on a random weapon spot that no weapon took (fuse box too). waits up to 3s for weapons to spawn first. bring them to the ESCAPE pad = protectors win
+- no keys until the power comes back on the first time. then they spawn on a free weapon spot at least 45 studs from everyone in the round (or the farthest one). protectors get a notice
+- keys land inside a safe now and the car needs gas first, see tasks.md. bring keys to the ESCAPE pad with a fueled car = protectors win
 - holder dies = keys drop
 - pad goes at invader spawn unless there's an EscapePoint part in HomeInvasionPrototype
 

@@ -104,7 +104,8 @@ UserInputService.InputBegan:Connect(function(input, processed)
     if input.KeyCode == Enum.KeyCode.E or input.KeyCode == Enum.KeyCode.ButtonA then
         remote:FireServer("Open", door)
     elseif input.KeyCode == Enum.KeyCode.L or input.KeyCode == Enum.KeyCode.ButtonY then
-        remote:FireServer("Lock", door)
+        local invader = player:GetAttribute("RoundRole") == "Invaders"
+        remote:FireServer(invader and door:GetAttribute("DoorLocked") and "Pick" or "Lock", door)
     end
 end)
 local elapsed = 0
@@ -125,7 +126,7 @@ RunService.RenderStepped:Connect(function(deltaTime)
     local moving = selected:GetAttribute("DoorMoving")
     panel.DoorName.Text = locked and "LOCKED DOOR" or "HOUSE DOOR"
     panel.Actions.Text = moving and "Door moving..."
-        or locked and player:GetAttribute("RoundRole") == "Invaders" and "CROWBAR: break the lock and door"
+        or locked and player:GetAttribute("RoundRole") == "Invaders" and "[L] Pick the lock (quiet)    CROWBAR: break it"
         or "[E] "
             .. (open and "Close" or "Open")
             .. "    "

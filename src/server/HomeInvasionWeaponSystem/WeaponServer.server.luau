@@ -537,10 +537,15 @@ end
 
 local function attack(player, tool, direction)
     local record, character, root = canUseWeapon(player, tool)
-    if not record or record.reloading or os.clock() < record.nextAttack then
+    if not record or record.reloading or os.clock() < record.nextAttack or player:GetAttribute("Hidden") then
         return
     end
     local definition = Config.Weapons[record.weaponId]
+    -- swinging is loud, invaders get a rough idea where protectors are fighting
+    local noise = game:GetService("ServerStorage"):FindFirstChild("HomeInvasionNoise")
+    if noise and player.Team == Teams.Protectors then
+        noise:Fire(root.Position, "fight")
+    end
     if definition.AttackKind == "Ranged" then
         if
             typeof(direction) ~= "Vector3"

@@ -24,18 +24,22 @@ local function refresh()
     gui.Header.Timer.TextColor3 = phase == "Active" and seconds <= 30 and Color3.fromRGB(255, 70, 55)
         or Color3.fromRGB(196, 38, 30)
     local message = state:GetAttribute("Message") or "Waiting for players"
-    if phase == "Waiting" then
+    if phase == "Waiting" and message == "Loading players" then
+        message = "Loading players..."
+    elseif phase == "Waiting" then
         message = string.format(
             "Waiting for players: %d / %d",
             state:GetAttribute("PlayerCount") or 0,
             state:GetAttribute("MinimumPlayers") or 4
         )
     elseif phase == "Preparation" then
-        message = role == "Protectors" and "Find weapons and the car keys. Lock doors. Barricade the house."
+        message = role == "Protectors" and "Find weapons and the screwdriver. Lock doors. Barricade the house."
             or role == "Invaders" and "Check your loadout. The house opens when preparation ends."
             or "The teams are preparing. You will join the next round."
     elseif phase == "Active" then
-        message = role == "Protectors" and "Escape with the car keys, or take out the invaders."
+        local keysOut = state:GetAttribute("KeysOut")
+        message = role == "Protectors" and not keysOut and "Fix the fuse box to find the car keys. Or take out the invaders."
+            or role == "Protectors" and "Find the car keys and escape. Or take out the invaders."
             or role == "Invaders" and "Get inside. Nobody leaves before dawn."
             or player:GetAttribute("EliminatedRoundId") == state:GetAttribute("RoundId") and "You were eliminated. Spectate the remaining players or wait in the lobby."
             or "Round in progress. You will join the next round."
@@ -67,8 +71,8 @@ local function refresh()
     results.NextRound.Text = string.format("Next lobby countdown in %d seconds", seconds)
     gui.Help.Visible = phase ~= "Results" and helpRequested
     gui.Help.Body.Text = role == "Invaders"
-            and "1 / 2 / 3: equip weapons\nClick: attack • R: reload\nRight mouse: aim\nCrowbar: breach doors and furniture\nE: open unlocked doors • G: cut the power"
-        or "F: pick up weapons and car keys\nG: fuse box\nHold left click: carry / drag furniture\nQ / R: rotate held furniture\nRelease click: drop • E: door • L: lock\n1 / 2 / 3: equip • click: attack\nR: reload • right mouse: aim"
+            and "1 / 2 / 3: equip weapons\nClick: attack • R: reload\nRight mouse: aim\nCrowbar: breach doors and furniture\nE: open unlocked doors • G: cut the power\nL: quietly pick a locked door\nE: search wardrobes • F: cut the phone line, drain the car\nRed rings: noise from the protectors"
+        or "F: pick up weapons, keys, gas can, notes\nF: call the police, open the safe, fuel the car\nE: hide in a wardrobe • G: fuse box\nHold left click: carry / drag furniture\nQ / R: rotate held furniture\nRelease click: drop • E: door • L: lock\n1 / 2 / 3: equip • click: attack\nR: reload • right mouse: aim"
 end
 UserInputService.InputBegan:Connect(function(input, processed)
     if not processed and not UserInputService:GetFocusedTextBox() and input.KeyCode == Enum.KeyCode.H then

@@ -7,5 +7,6 @@ stuff i don't want to forget. delete things when they stop being true
 - weapons.md - weapons, attacks, fp arms
 - doors-furniture.md - doors, locking, dragging furniture
 - roles-objectives.md - traitor, survivor, masks, keys, lights out
+- tasks.md - phone, gas, safe, hiding, lock picking, noise, random events
 - look.md - ui colors/fonts, lighting, sounds
 - bugs.md - weird bugs + what caused them

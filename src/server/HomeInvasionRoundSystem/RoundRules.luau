@@ -25,6 +25,10 @@ function RoundRules.escapeResult(player)
     }
 end
 
+function RoundRules.helpArrivedResult()
+    return { winner = "Protectors", reason = "HelpArrived", message = "The police arrived. Protectors win" }
+end
+
 function RoundRules.timeExpiredResult(studioSolo, timeoutWinner)
     if studioSolo then
         return { winner = "StudioSolo", reason = "TimeExpired", message = "Solo test complete: time expired" }

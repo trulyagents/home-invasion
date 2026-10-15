@@ -375,6 +375,23 @@ while true do
         minimumPlayers = getRequiredPlayerCount()
     end
 
+    -- Everyone should be standing in the lobby before the countdown starts.
+    local loadDeadline = os.clock() + Config.SpawnTimeoutSeconds
+    while os.clock() < loadDeadline do
+        local loading = false
+        for player, job in pairs(spawnJobs) do
+            if job.running or not player.Character then
+                loading = true
+                break
+            end
+        end
+        if not loading then
+            break
+        end
+        updateState("Waiting", 0, "Loading players")
+        task.wait(0.5)
+    end
+
     local countdownComplete = true
     local intermissionSeconds = minimumPlayers == 1
         and Config.StudioSoloIntermissionSeconds or Config.IntermissionSeconds
@@ -401,6 +418,10 @@ while true do
             while true do
                 if RoundShared.escapedRoundId == roundId and RoundShared.escapedBy then
                     result = RoundRules.escapeResult(RoundShared.escapedBy)
+                    break
+                end
+                if RoundShared.helpArrivedRoundId == roundId then
+                    result = RoundRules.helpArrivedResult()
                     break
                 end
                 local elimination = eliminationResult()

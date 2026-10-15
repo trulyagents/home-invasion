@@ -1,8 +1,8 @@
 -- Gives the Protectors something to do besides hide:
 --   * The power goes out when the Invaders arrive. Protectors fix it at the fuse box with
 --     a screwdriver and a short repair minigame. Invaders can cut it again.
---   * Car keys are hidden somewhere in the house. A Protector who reaches the escape
---     point with them wins the round for their team.
+--   * Once the power is back on, car keys turn up somewhere in the house, away from
+--     everyone. A Protector who reaches the escape point with them wins the round.
 --
 -- To place things yourself, add parts named "FuseBox" and "EscapePoint" to
 -- workspace.HomeInvasionPrototype. Otherwise they get placed automatically.
@@ -13,10 +13,9 @@ local Lighting = game:GetService("Lighting")
 local Teams = game:GetService("Teams")
 
 local RoundShared = require(script.Parent.RoundShared)
+local SpotPicker = require(script.Parent.SpotPicker)
 local roundState = ReplicatedStorage:WaitForChild("HomeInvasionRoundState")
 local arena = workspace:WaitForChild("HomeInvasionPrototype")
-local markers = arena:WaitForChild("WeaponSpawns")
-local random = Random.new()
 
 local ESCAPE_RADIUS = 8
 local OPEN_SECONDS = 0.3 -- the repair minigame is the real work
@@ -24,6 +23,7 @@ local MIN_REPAIR_SECONDS = 3.5 -- quicker than this and the client skipped the m
 local REPAIR_RANGE = 10
 local CUT_SECONDS = 2.5
 local CUT_COOLDOWN = 30
+local KEYS_MIN_DISTANCE = 45 -- keys never appear this close to anyone
 
 local ServerStorage = game:GetService("ServerStorage")
 local objectiveModels = ServerStorage:FindFirstChild("HomeInvasionObjectiveModels")
@@ -80,6 +80,8 @@ if RunService:IsStudio() then
 end
 
 -- Power ----------------------------------------------------------------------
+
+local spawnKeys -- set further down, called when the power first comes back
 
 local savedLights = {}
 local savedLighting = nil
@@ -158,6 +160,9 @@ local function setPower(on)
     end
     if on then
         endAllRepairs(nil)
+        if roundState:GetAttribute("Phase") == "Active" then
+            spawnKeys()
+        end
     end
 end
 
@@ -318,6 +323,7 @@ local function makeKeys(cframe)
         local root = character and character:FindFirstChild("HumanoidRootPart")
         if
             keyHolder
+            or player:GetAttribute("HasFuel")
             or not (phase == "Preparation" or phase == "Active")
             or player.Team ~= Teams.Protectors
             or player:GetAttribute("InRound") ~= true
@@ -396,6 +402,25 @@ local function makeEscapePoint()
     return part
 end
 
+-- Keys go on a free spot far from every player in the round, so nobody gets them for free.
+spawnKeys = function()
+    if keys or not escapePart then
+        return
+    end
+    local spot = SpotPicker.take(KEYS_MIN_DISTANCE)
+    if not spot then
+        warn("No free spot left for the car keys")
+        return
+    end
+    keys, keysPrompt = makeKeys(spot.CFrame)
+    roundState:SetAttribute("KeysOut", true)
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player.Team == Teams.Protectors and player:GetAttribute("InRound") then
+            remote:FireClient(player, "Notice", "Power's back. The car keys are somewhere in the house")
+        end
+    end
+end
+
 -- Round lifecycle --------------------------------------------------------------
 
 local function cleanup()
@@ -412,65 +437,21 @@ local function cleanup()
     objectiveFolder:ClearAllChildren()
     keys, keysPrompt, escapePart, fusePrompt = nil, nil, nil, nil
     roundState:SetAttribute("PowerOn", nil)
-end
-
--- Weapons spawn on the same markers, so wait for them and only use the empty ones.
--- Otherwise the fuse box can land on a weapon and block anyone from picking it up.
-local function freeSpots()
-    local pickups = arena:FindFirstChild("WeaponPickups")
-    local roundId = roundState:GetAttribute("RoundId")
-    local deadline = os.clock() + 3
-    while pickups and os.clock() < deadline do
-        local spawned = false
-        for _, pickup in ipairs(pickups:GetChildren()) do
-            if pickup:GetAttribute("RoundId") == roundId then
-                spawned = true
-                break
-            end
-        end
-        if spawned then
-            break
-        end
-        task.wait(0.1)
-    end
-    local taken = {}
-    for _, pickup in ipairs(pickups and pickups:GetChildren() or {}) do
-        local marker = pickup:GetAttribute("SpawnMarker")
-        if marker then
-            taken[marker] = true
-        end
-    end
-    local spots = {}
-    for _, marker in ipairs(markers:GetChildren()) do
-        if not taken[marker.Name] then
-            table.insert(spots, marker)
-        end
-    end
-    -- Not enough empty spots: fall back to any marker rather than skipping objectives.
-    if #spots < 2 then
-        spots = markers:GetChildren()
-    end
-    return spots
+    roundState:SetAttribute("KeysOut", nil)
 end
 
 local function setupRound()
     cleanup()
-    local spots = freeSpots()
+    local fuseSpot = not arena:FindFirstChild("FuseBox") and SpotPicker.take()
     if roundState:GetAttribute("Phase") ~= "Preparation" then
         return
     end
-    if #spots < 2 then
-        warn("Objectives need at least 2 WeaponSpawns markers")
-        return
-    end
-    local keySpot = table.remove(spots, random:NextInteger(1, #spots))
-    local fuseSpot = spots[random:NextInteger(1, #spots)]
-    keys, keysPrompt = makeKeys(keySpot.CFrame)
-    fusePrompt = makeFuseBox(fuseSpot.CFrame)
+    fusePrompt = makeFuseBox(fuseSpot and fuseSpot.CFrame or CFrame.new())
     escapePart = makeEscapePoint()
     roundState:SetAttribute("PowerOn", true)
 
     local roundId = RoundShared.roundId
+    local lastEmptyWarning = 0
     heartbeat = RunService.Heartbeat:Connect(function()
         local holder = keyHolder
         local character = holder and holder.Character
@@ -478,8 +459,13 @@ local function setupRound()
         if root and roundState:GetAttribute("Phase") == "Active" then
             local offset = root.Position - escapePart.Position
             if Vector3.new(offset.X, 0, offset.Z).Magnitude <= ESCAPE_RADIUS and math.abs(offset.Y) < 10 then
-                RoundShared.escapedRoundId = roundId
-                RoundShared.escapedBy = holder
+                if roundState:GetAttribute("CarFueled") then
+                    RoundShared.escapedRoundId = roundId
+                    RoundShared.escapedBy = holder
+                elseif os.clock() - lastEmptyWarning > 5 then
+                    lastEmptyWarning = os.clock()
+                    remote:FireClient(holder, "Notice", "The car's out of gas. Find the gas can")
+                end
             end
         end
     end)
