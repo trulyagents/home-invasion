@@ -41,7 +41,7 @@ return {
             Placeholder = { Handle = Color3.fromRGB(40, 30, 25), Head = Color3.fromRGB(200, 205, 210), Length = 1.1 },
         },
         MeatTenderizer = {
-            DisplayName = "Hammer",
+            DisplayName = "Meat Tenderizer",
             SpawnCount = 2,
             Damage = 30,
             Range = 4.5,

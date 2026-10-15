@@ -20,7 +20,7 @@ house weapon models (free models, see CREDITS)
 - fp copy: ReplicatedStorage.HomeInvasionFirstPersonAssets.Weapons.<id> = same thing at 0.72 scale with RightGrip/LeftGrip on the Handle
 - each needs a pose in MotionProfiles or it falls back to unarmed
 - each Handle has AttackSound (swing) and HitSound (plays when a melee swing lands). ProSoundEffects library sounds
-- MeatTenderizer is a hammer now (shows as "Hammer"), no tenderizer model exists
+- meat tenderizer is built from parts (wood grip, steel head, spikes) welded to the Handle, in both copies. old hammer mesh backed up in ServerStorage.HammerBackup. blender version in models/
 
 old gun kit is gone. tools/cleanup-place.luau removes leftovers
 

@@ -7,7 +7,6 @@ Some code in this project wasn't written by me.
   - Kitchen knife by jezuur
   - Screwdriver by DarkShears
   - Fire poker by 104_Studios
-  - Hammer (the "meat tenderizer" slot) by workerman65
   - Fuse box by Psders
   - Car key by TheCoBlue
   - Land Cruiser (escape car) by tomatotincan
