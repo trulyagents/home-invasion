@@ -148,7 +148,7 @@ local function makeFuseBox(cframe)
     prompt.MaxActivationDistance = 8
     prompt.RequiresLineOfSight = true
     prompt.Parent = box
-    if box.Parent == objectiveFolder then
+    if not box:FindFirstChild("Visual") then
         dress(box, "FuseBox")
     end
     local function onTriggered(player)

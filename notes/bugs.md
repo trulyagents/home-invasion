@@ -15,6 +15,8 @@ crowbar did nothing in a test - melee checks the character's facing and in first
 
 fuse box on top of a hammer - objectives and weapons used the same spawn markers. box blocked line of sight so the hammer couldn't be picked up. objectives now skip taken markers
 
+fuse box model invisible on a wall - the mesh draws about a stud off its part's centre so it was inside the wall. the stored model has an offset + 90° turn baked in now
+
 oct fixes
 - round stalled if someone failed to spawn (retries now)
 - player counted alive after character replaced

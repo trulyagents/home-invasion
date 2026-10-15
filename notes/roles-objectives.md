@@ -25,7 +25,7 @@ lights out
 - power cuts when invaders come in, every light on the map off
 - dim not black + local glow around you (AtmosphereClient)
 - protectors hold G at fuse box 4s to fix. invaders cut it 2.5s, 30s cooldown
-- fuse box random unless there's a FuseBox part
+- fuse box random unless there's a FuseBox part in HomeInvasionPrototype (there is now, on the ground floor wall near Door08). it gets the model too. part has to be anchored and its front (-Z) facing out from the wall
 
 models
 - fuse box, car keys, escape car live in ServerStorage.HomeInvasionObjectiveModels (FuseBox, CarKeys, EscapeCar). pivot = center of the part (car: bottom center). missing one = plain block
