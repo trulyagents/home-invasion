@@ -24,4 +24,4 @@ files
 todo / known
 - anim tracks might pile up if old characters don't get destroyed
 - always spawn in first person, can mess up camera after aiming/spectating
-- hotbar + spectator ui rebuild way too often
+- spectator ui rechecks 4x a second on purpose (fixes camera after respawn). hotbar only redraws on tool/round changes now

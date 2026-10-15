@@ -14,9 +14,9 @@ furniture (FurnitureServer, FurnitureClient)
 - max 40 studs from start, same floor, no walls. you walk slower
 - invader crowbar breaks barricades. resets every round
 - needs a DragCollider. numbers in Config
+- dragging onto another floor height stops and the panel says "Furniture has to stay on this floor"
 
 known
-- dragging onto another floor height just stops w/ no message
 - nothing checks parts are anchored
 - doors choppy when laggy
 - 9 studs is hardcoded in the clients

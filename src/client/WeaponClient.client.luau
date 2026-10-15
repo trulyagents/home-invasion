@@ -35,7 +35,10 @@ local function refreshHUD()
     local tool = equippedWeapon()
     local phase = state:GetAttribute("Phase")
     gui.Enabled = phase == "Active" or phase == "Preparation"
-    gui.Reload.Visible = phase == "Active" and tool ~= nil and tool:GetAttribute("AttackKind") == "Ranged"
+    gui.Reload.Visible = UserInputService.TouchEnabled
+        and phase == "Active"
+        and tool ~= nil
+        and tool:GetAttribute("AttackKind") == "Ranged"
     if tool then
         if phase == "Preparation" then
             status.Text = tool.Name .. " | ready for invasion; combat starts after preparation"

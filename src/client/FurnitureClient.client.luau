@@ -143,6 +143,10 @@ remote.OnClientEvent:Connect(function(action, modelOrMessage, id)
         panel.Status.Text = "Hold left click: carry / drag • Q / R: rotate • release: drop"
         panel.Visible = true
         feedbackUntil = 0
+    elseif action == "Blocked" then
+        if heldModel then
+            panel.Status.Text = modelOrMessage or "Hold left click: carry / drag • Q / R: rotate • release: drop"
+        end
     elseif action == "Dropped" or action == "Rejected" then
         heldModel, sessionId = nil, nil
         pending, pointerHeld = false, false

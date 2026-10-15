@@ -21,6 +21,14 @@ local targets = {
     { "StarterGui", "HotbarGUI" },
     { "StarterPlayer", "StarterCharacterScripts", "KillNotification" },
     { "StarterPlayer", "StarterPlayerScripts", "Client" },
+    { "StarterPlayer", "StarterPlayerScripts", "GoreClientScript" },
+    { "StarterPlayer", "StarterPlayerScripts", "GunClientScript" },
+    { "StarterPlayer", "StarterPlayerScripts", "Holomod" },
+    { "StarterPlayer", "StarterPlayerScripts", "Holomod2" },
+    { "StarterPlayer", "StarterPlayerScripts", "MeleeClientScript" },
+    { "ServerScriptService", "SimulateBulletScript" },
+    { "ServerScriptService", "ListForAdvancedCharging" },
+    { "ServerScriptService", "MeleeEffectScript" },
 }
 
 local removed = 0

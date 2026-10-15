@@ -13,6 +13,8 @@ fp weapons huge - ScaleTo is absolute, not relative. model:ScaleTo(0.72) on some
 
 crowbar did nothing in a test - melee checks the character's facing and in first person the character turns to the camera. aim the camera, not the root
 
+fuse box on top of a hammer - objectives and weapons used the same spawn markers. box blocked line of sight so the hammer couldn't be picked up. objectives now skip taken markers
+
 oct fixes
 - round stalled if someone failed to spawn (retries now)
 - player counted alive after character replaced

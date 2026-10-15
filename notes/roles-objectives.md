@@ -17,7 +17,7 @@ survivor
 - T = nail trap, 3 per round. hurts + slows first invader. TrapSystem Config
 
 keys + escape
-- keys spawn on a random weapon spot. bring them to the ESCAPE pad = protectors win
+- keys spawn on a random weapon spot that no weapon took (fuse box too). waits up to 3s for weapons to spawn first. bring them to the ESCAPE pad = protectors win
 - holder dies = keys drop
 - pad goes at invader spawn unless there's an EscapePoint part in HomeInvasionPrototype
 

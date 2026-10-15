@@ -336,9 +336,51 @@ local function cleanup()
     roundState:SetAttribute("PowerOn", nil)
 end
 
+-- Weapons spawn on the same markers, so wait for them and only use the empty ones.
+-- Otherwise the fuse box can land on a weapon and block anyone from picking it up.
+local function freeSpots()
+    local pickups = arena:FindFirstChild("WeaponPickups")
+    local roundId = roundState:GetAttribute("RoundId")
+    local deadline = os.clock() + 3
+    while pickups and os.clock() < deadline do
+        local spawned = false
+        for _, pickup in ipairs(pickups:GetChildren()) do
+            if pickup:GetAttribute("RoundId") == roundId then
+                spawned = true
+                break
+            end
+        end
+        if spawned then
+            break
+        end
+        task.wait(0.1)
+    end
+    local taken = {}
+    for _, pickup in ipairs(pickups and pickups:GetChildren() or {}) do
+        local marker = pickup:GetAttribute("SpawnMarker")
+        if marker then
+            taken[marker] = true
+        end
+    end
+    local spots = {}
+    for _, marker in ipairs(markers:GetChildren()) do
+        if not taken[marker.Name] then
+            table.insert(spots, marker)
+        end
+    end
+    -- Not enough empty spots: fall back to any marker rather than skipping objectives.
+    if #spots < 2 then
+        spots = markers:GetChildren()
+    end
+    return spots
+end
+
 local function setupRound()
     cleanup()
-    local spots = markers:GetChildren()
+    local spots = freeSpots()
+    if roundState:GetAttribute("Phase") ~= "Preparation" then
+        return
+    end
     if #spots < 2 then
         warn("Objectives need at least 2 WeaponSpawns markers")
         return

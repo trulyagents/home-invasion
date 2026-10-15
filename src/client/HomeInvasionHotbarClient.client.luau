@@ -1,7 +1,6 @@
 local Players = game:GetService("Players")
 local StarterGui = game:GetService("StarterGui")
 local UserInputService = game:GetService("UserInputService")
-local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
 local gui = player:WaitForChild("PlayerGui"):WaitForChild("HomeInvasionHotbar")
 local slots = {}
@@ -102,12 +101,32 @@ task.spawn(function()
         task.wait(0.2)
     end
 end)
-local elapsed = 0
-RunService.Heartbeat:Connect(function(deltaTime)
-    elapsed += deltaTime
-    if elapsed >= 0.1 then
-        elapsed = 0
-        refresh()
+-- Redraw only when tools move between the backpack and the character, or the round changes.
+local containerConnections = {}
+local function watch(container)
+    if not container then
+        return
+    end
+    table.insert(containerConnections, container.ChildAdded:Connect(refresh))
+    table.insert(containerConnections, container.ChildRemoved:Connect(refresh))
+end
+local function rewatch()
+    for _, connection in containerConnections do
+        connection:Disconnect()
+    end
+    table.clear(containerConnections)
+    watch(player:FindFirstChildOfClass("Backpack"))
+    watch(player.Character)
+    refresh()
+end
+player.CharacterAdded:Connect(function()
+    player:WaitForChild("Backpack")
+    rewatch()
+end)
+player.ChildAdded:Connect(function(child)
+    if child:IsA("Backpack") then
+        rewatch()
     end
 end)
-refresh()
+player:GetAttributeChangedSignal("InRound"):Connect(refresh)
+rewatch()

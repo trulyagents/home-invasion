@@ -522,7 +522,16 @@ local function stepSession(player, session, deltaTime)
         or ground.Normal.Y < 0.9
         or math.abs(ground.Position.Y - record.homeFloorY) > Config.MaximumFloorChange
     then
+        -- Tell the player once, instead of the furniture just freezing.
+        if not session.floorBlocked then
+            session.floorBlocked = true
+            notify(player, "Blocked", "Furniture has to stay on this floor")
+        end
         return
+    end
+    if session.floorBlocked then
+        session.floorBlocked = false
+        notify(player, "Blocked", nil)
     end
     local minimumY = ground.Position.Y + record.collider.Size.Y / 2 + Config.GroundClearance
     local maximumLift = record.model:GetAttribute("FurnitureKind") == "Table" and Config.MaximumTableLift

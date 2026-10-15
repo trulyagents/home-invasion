@@ -672,6 +672,7 @@ local function attack(player, tool, direction)
             end
         elseif nearestHumanoid then
             dealDamage(player, nearestHumanoid, definition.Damage)
+            playWeaponSound(tool, "HitSound")
         end
         animateGrip(tool, record, CFrame.Angles(math.rad(-65), 0, math.rad(-15)), 0.3)
     end

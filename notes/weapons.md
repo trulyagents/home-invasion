@@ -19,6 +19,7 @@ house weapon models (free models, see CREDITS)
 - world tool: ServerStorage.HomeInvasionWeaponTemplates.<id>. invisible Handle along Y (tip up), visuals welded on, Tool.Grip = where the hand goes
 - fp copy: ReplicatedStorage.HomeInvasionFirstPersonAssets.Weapons.<id> = same thing at 0.72 scale with RightGrip/LeftGrip on the Handle
 - each needs a pose in MotionProfiles or it falls back to unarmed
+- each Handle has AttackSound (swing) and HitSound (plays when a melee swing lands). ProSoundEffects library sounds
 - MeatTenderizer is a hammer now (shows as "Hammer"), no tenderizer model exists
 
 old gun kit is gone. tools/cleanup-place.luau removes leftovers
