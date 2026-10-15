@@ -9,6 +9,10 @@ masks falling off - avatar loading swaps the head after the mask is welded. wait
 
 lights out did nothing in the house - it only turned off lights in HomeInvasionPrototype, the mansion lamps are outside it
 
+fp weapons huge - ScaleTo is absolute, not relative. model:ScaleTo(0.72) on something already scaled to 0.375 made it bigger. use model:ScaleTo(model:GetScale() * x)
+
+crowbar did nothing in a test - melee checks the character's facing and in first person the character turns to the camera. aim the camera, not the root
+
 oct fixes
 - round stalled if someone failed to spawn (retries now)
 - player counted alive after character replaced

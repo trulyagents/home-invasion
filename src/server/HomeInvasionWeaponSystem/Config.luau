@@ -30,7 +30,7 @@ return {
             MinimumFacingDot = 0.45,
         },
         -- Household weapons. Nobody in the house owns a gun.
-        -- `Placeholder` describes a simple block model used until a real one is made in Studio.
+        -- `Placeholder` is a simple block model, only used if the real one is missing from ServerStorage.
         KitchenKnife = {
             DisplayName = "Kitchen Knife",
             SpawnCount = 2,
@@ -41,7 +41,7 @@ return {
             Placeholder = { Handle = Color3.fromRGB(40, 30, 25), Head = Color3.fromRGB(200, 205, 210), Length = 1.1 },
         },
         MeatTenderizer = {
-            DisplayName = "Meat Tenderizer",
+            DisplayName = "Hammer",
             SpawnCount = 2,
             Damage = 30,
             Range = 4.5,

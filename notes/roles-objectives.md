@@ -27,6 +27,7 @@ lights out
 - protectors hold G at fuse box 4s to fix. invaders cut it 2.5s, 30s cooldown
 - fuse box random unless there's a FuseBox part
 
-still placeholders
-- knife, tenderizer, screwdriver, poker are blocks. put real tools in ServerStorage.HomeInvasionWeaponTemplates w/ same names. they use the crowbar fp model for now
-- fuse box, keys, escape pad
+models
+- fuse box, car keys, escape car live in ServerStorage.HomeInvasionObjectiveModels (FuseBox, CarKeys, EscapeCar). pivot = center of the part (car: bottom center). missing one = plain block
+- car parks next to the escape pad
+- prompts can't be pressed in automated tests, so in studio there's ServerStorage.StudioObjectiveTest (BindableFunction): Invoke("FuseBox", player) / Invoke("CarKeys", player). only exists in studio

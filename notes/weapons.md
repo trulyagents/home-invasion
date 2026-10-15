@@ -10,10 +10,16 @@ server does damage/ammo/cooldown/range/LOS. client just sends aim direction
 
 files
 - WeaponServer - pickups, attacks, reload, damage
-- Config - stats per weapon, HouseWeapons = what spawns, Placeholder = block model until a real one exists. pickup 9 studs, max 2 weapons
+- Config - stats per weapon, HouseWeapons = what spawns, Placeholder = block fallback if the template is missing. pickup 9 studs, max 2 weapons
 - WeaponClient - input, ammo, prompts, tracers
 - FirstPersonViewmodelClient - fp arms + weapon. rig arms colored to skin (avatar arms broke w/ layered clothing). slimmer than normal or they cover the screen. hidden when unarmed
 - GameFeelClient - camera kick on swing/hit, red edges + shake when hurt
+
+house weapon models (free models, see CREDITS)
+- world tool: ServerStorage.HomeInvasionWeaponTemplates.<id>. invisible Handle along Y (tip up), visuals welded on, Tool.Grip = where the hand goes
+- fp copy: ReplicatedStorage.HomeInvasionFirstPersonAssets.Weapons.<id> = same thing at 0.72 scale with RightGrip/LeftGrip on the Handle
+- each needs a pose in MotionProfiles or it falls back to unarmed
+- MeatTenderizer is a hammer now (shows as "Hammer"), no tenderizer model exists
 
 old gun kit is gone. tools/cleanup-place.luau removes leftovers
 

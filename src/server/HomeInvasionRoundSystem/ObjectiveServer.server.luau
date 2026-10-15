@@ -23,9 +23,52 @@ local RESTORE_SECONDS = 4
 local CUT_SECONDS = 2.5
 local CUT_COOLDOWN = 30
 
+local ServerStorage = game:GetService("ServerStorage")
+local objectiveModels = ServerStorage:FindFirstChild("HomeInvasionObjectiveModels")
+
 local objectiveFolder = Instance.new("Folder")
 objectiveFolder.Name = "Objectives"
 objectiveFolder.Parent = arena
+
+-- Puts a nicer model on top of a plain objective part if one is stored in
+-- ServerStorage.HomeInvasionObjectiveModels. The model's pivot lines up with the part.
+local function dress(part, modelName)
+    local template = objectiveModels and objectiveModels:FindFirstChild(modelName)
+    if not template then
+        return
+    end
+    local model = template:Clone()
+    model.Name = "Visual"
+    model:PivotTo(part.CFrame)
+    for _, child in ipairs(model:GetDescendants()) do
+        if child:IsA("BasePart") then
+            child:SetAttribute("BaseTransparency", child.Transparency)
+            child.Anchored = true
+            child.CanCollide = false
+            child.CanQuery = false
+            child.CanTouch = false
+        end
+    end
+    model.Parent = part
+    part.Transparency = 1
+end
+
+-- Studio only: lets play tests run the same code as pressing a prompt, since prompts
+-- can't be pressed from automated tests. Never created in a live game.
+local studioTriggers = {}
+if RunService:IsStudio() then
+    local hook = Instance.new("BindableFunction")
+    hook.Name = "StudioObjectiveTest"
+    hook.OnInvoke = function(name, player)
+        local handler = studioTriggers[name]
+        if handler then
+            handler(player)
+            return true
+        end
+        return false
+    end
+    hook.Parent = ServerStorage
+end
 
 -- Power ----------------------------------------------------------------------
 
@@ -105,7 +148,10 @@ local function makeFuseBox(cframe)
     prompt.MaxActivationDistance = 8
     prompt.RequiresLineOfSight = true
     prompt.Parent = box
-    prompt.Triggered:Connect(function(player)
+    if box.Parent == objectiveFolder then
+        dress(box, "FuseBox")
+    end
+    local function onTriggered(player)
         if roundState:GetAttribute("Phase") ~= "Active" then
             return
         end
@@ -123,7 +169,9 @@ local function makeFuseBox(cframe)
         elseif not powerOn and player.Team == Teams.Protectors then
             setPower(true)
         end
-    end)
+    end
+    prompt.Triggered:Connect(onTriggered)
+    studioTriggers.FuseBox = onTriggered
     return prompt
 end
 
@@ -143,10 +191,27 @@ local function setHolder(player)
     roundState:SetAttribute("KeysHolder", player and player.DisplayName or nil)
 end
 
+local function setKeysVisible(part, visible)
+    local visual = part:FindFirstChild("Visual")
+    if visual then
+        for _, child in ipairs(visual:GetDescendants()) do
+            if child:IsA("BasePart") then
+                child.Transparency = visible and child:GetAttribute("BaseTransparency") or 1
+            end
+        end
+    else
+        part.Transparency = visible and 0 or 1
+    end
+end
+
 local function dropKeys(position)
     setHolder(nil)
     keys.CFrame = CFrame.new(position)
-    keys.Transparency = 0
+    local visual = keys:FindFirstChild("Visual")
+    if visual then
+        visual:PivotTo(keys.CFrame)
+    end
+    setKeysVisible(keys, true)
     keysPrompt.Enabled = true
 end
 
@@ -168,7 +233,8 @@ local function makeKeys(cframe)
     prompt.MaxActivationDistance = 8
     prompt.RequiresLineOfSight = true
     prompt.Parent = part
-    prompt.Triggered:Connect(function(player)
+    dress(part, "CarKeys")
+    local function onTriggered(player)
         local phase = roundState:GetAttribute("Phase")
         local character = player.Character
         local humanoid = character and character:FindFirstChildOfClass("Humanoid")
@@ -186,20 +252,41 @@ local function makeKeys(cframe)
             return
         end
         setHolder(player)
-        part.Transparency = 1
+        setKeysVisible(part, false)
         prompt.Enabled = false
         humanoid.Died:Once(function()
             if keyHolder == player and keys == part then
                 dropKeys(root.Position - Vector3.new(0, 2.5, 0))
             end
         end)
-    end)
+    end
+    prompt.Triggered:Connect(onTriggered)
+    studioTriggers.CarKeys = onTriggered
     return part, prompt
+end
+
+-- Parks the getaway car (ServerStorage.HomeInvasionObjectiveModels.EscapeCar) beside the pad.
+-- The car's pivot should be at the bottom centre of the car.
+local function parkCar(pad)
+    local template = objectiveModels and objectiveModels:FindFirstChild("EscapeCar")
+    if not template then
+        return
+    end
+    local car = template:Clone()
+    local beside = pad.CFrame * CFrame.new(0, 0, ESCAPE_RADIUS / 2 + 4.5)
+    local params = RaycastParams.new()
+    params.FilterType = Enum.RaycastFilterType.Exclude
+    params.FilterDescendantsInstances = { objectiveFolder, pad }
+    local ground = workspace:Raycast(beside.Position + Vector3.new(0, 10, 0), Vector3.new(0, -40, 0), params)
+    local height = ground and ground.Position.Y or pad.Position.Y
+    car:PivotTo(CFrame.new(beside.X, height, beside.Z) * pad.CFrame.Rotation)
+    car.Parent = objectiveFolder
 end
 
 local function makeEscapePoint()
     local existing = arena:FindFirstChild("EscapePoint")
     if existing then
+        parkCar(existing)
         return existing
     end
     -- No escape point placed yet, so use the road where the Invaders start.
@@ -207,9 +294,9 @@ local function makeEscapePoint()
     local part = Instance.new("Part")
     part.Name = "EscapePoint"
     part.Size = Vector3.new(ESCAPE_RADIUS, 0.2, ESCAPE_RADIUS)
-    part.Color = Color3.fromRGB(90, 200, 120)
+    part.Color = Color3.fromRGB(70, 150, 95)
     part.Material = Enum.Material.Neon
-    part.Transparency = 0.6
+    part.Transparency = 0.8
     part.Anchored = true
     part.CanCollide = false
     part.CanQuery = false
@@ -228,6 +315,7 @@ local function makeEscapePoint()
     label.TextColor3 = Color3.fromRGB(120, 230, 150)
     label.Parent = gui
     gui.Parent = part
+    parkCar(part)
     return part
 end
 

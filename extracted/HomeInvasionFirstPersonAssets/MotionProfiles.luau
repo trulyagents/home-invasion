@@ -74,5 +74,33 @@ return {
             Equip = equip,
             Attack = meleeAttack,
         },
+        KitchenKnife = {
+            Hold = pose(0.62, -0.62, -1.3, -10, -10, -20),
+            FreeLeft = true,
+            AttackSeconds = 0.4,
+            Equip = equip,
+            Attack = meleeAttack,
+        },
+        Screwdriver = {
+            Hold = pose(0.6, -0.6, -1.25, -10, -10, -20),
+            FreeLeft = true,
+            AttackSeconds = 0.32,
+            Equip = equip,
+            Attack = meleeAttack,
+        },
+        MeatTenderizer = {
+            Hold = pose(0.66, -0.6, -1.35, -15, -10, -25),
+            FreeLeft = true,
+            AttackSeconds = 0.6,
+            Equip = equip,
+            Attack = meleeAttack,
+        },
+        FireplacePoker = {
+            Hold = pose(0.72, -0.4, -1.5, -15, -10, -25),
+            FreeLeft = true,
+            AttackSeconds = 0.6,
+            Equip = equip,
+            Attack = meleeAttack,
+        },
     },
 }

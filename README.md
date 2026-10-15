@@ -2,7 +2,7 @@
 
 A Roblox horror game inspired by *You're Next*. Masked Invaders break into a house, and the people inside have to fight back or get out.
 
-Protectors get a prep phase to grab whatever they can find (knives, a poker, a meat tenderizer), lock doors and barricade with furniture. Then the power cuts out and the Invaders come in wearing animal masks, armed with crossbows, machetes and crowbars.
+Protectors get a prep phase to grab whatever they can find (knives, a hammer, a screwdriver, a fire poker), lock doors and barricade with furniture. Then the power cuts out and the Invaders come in wearing animal masks, armed with crossbows, machetes and crowbars.
 
 - **Escape:** find the car keys and get to the road.
 - **The traitor:** one Protector secretly hired the Invaders.
