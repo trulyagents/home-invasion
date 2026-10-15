@@ -1,6 +1,6 @@
 -- Gives the Protectors something to do besides hide:
---   * The power goes out when the Invaders arrive. Protectors can fix it at the fuse box,
---     and Invaders can cut it again.
+--   * The power goes out when the Invaders arrive. Protectors fix it at the fuse box with
+--     a screwdriver and a short repair minigame. Invaders can cut it again.
 --   * Car keys are hidden somewhere in the house. A Protector who reaches the escape
 --     point with them wins the round for their team.
 --
@@ -19,12 +19,21 @@ local markers = arena:WaitForChild("WeaponSpawns")
 local random = Random.new()
 
 local ESCAPE_RADIUS = 8
-local RESTORE_SECONDS = 4
+local OPEN_SECONDS = 0.3 -- the repair minigame is the real work
+local MIN_REPAIR_SECONDS = 3.5 -- quicker than this and the client skipped the minigame
+local REPAIR_RANGE = 10
 local CUT_SECONDS = 2.5
 local CUT_COOLDOWN = 30
 
 local ServerStorage = game:GetService("ServerStorage")
 local objectiveModels = ServerStorage:FindFirstChild("HomeInvasionObjectiveModels")
+
+local remoteFolder = ReplicatedStorage:FindFirstChild("HomeInvasionObjectives") or Instance.new("Folder")
+remoteFolder.Name = "HomeInvasionObjectives"
+remoteFolder.Parent = ReplicatedStorage
+local remote = remoteFolder:FindFirstChild("Interaction") or Instance.new("RemoteEvent")
+remote.Name = "Interaction"
+remote.Parent = remoteFolder
 
 local objectiveFolder = Instance.new("Folder")
 objectiveFolder.Name = "Objectives"
@@ -77,6 +86,28 @@ local savedLighting = nil
 local powerOn = true
 local lastCut = 0
 local fusePrompt
+local repairs = {} -- [player] = { started, roundId }
+
+local function endRepair(player, message)
+    if repairs[player] then
+        repairs[player] = nil
+        if player.Parent == Players then
+            remote:FireClient(player, "FuseEnd", message)
+        end
+    end
+end
+
+local function endAllRepairs(message)
+    for player in pairs(repairs) do
+        endRepair(player, message)
+    end
+end
+
+local function holdingScrewdriver(player)
+    local character = player.Character
+    local tool = character and character:FindFirstChildOfClass("Tool")
+    return tool ~= nil and tool:GetAttribute("WeaponId") == "Screwdriver"
+end
 
 local function setPower(on)
     if powerOn == on then
@@ -123,7 +154,10 @@ local function setPower(on)
     end
     if fusePrompt then
         fusePrompt.ActionText = on and "Cut power" or "Restore power"
-        fusePrompt.HoldDuration = on and CUT_SECONDS or RESTORE_SECONDS
+        fusePrompt.HoldDuration = on and CUT_SECONDS or OPEN_SECONDS
+    end
+    if on then
+        endAllRepairs(nil)
     end
 end
 
@@ -167,13 +201,56 @@ local function makeFuseBox(cframe)
             lastCut = os.clock()
             setPower(false)
         elseif not powerOn and player.Team == Teams.Protectors then
-            setPower(true)
+            if not holdingScrewdriver(player) then
+                remote:FireClient(player, "Notice", "You need a screwdriver to fix the fuse box")
+            elseif not repairs[player] then
+                repairs[player] = { started = os.clock(), roundId = roundState:GetAttribute("RoundId") }
+                remote:FireClient(player, "FuseStart", fusePrompt.Parent)
+            end
         end
     end
     prompt.Triggered:Connect(onTriggered)
     studioTriggers.FuseBox = onTriggered
     return prompt
 end
+
+-- The client says the minigame is done. Check everything again before believing it.
+local function finishRepair(player)
+    local repair = repairs[player]
+    local box = fusePrompt and fusePrompt.Parent
+    local character = player.Character
+    local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+    local root = character and character:FindFirstChild("HumanoidRootPart")
+    if
+        not repair
+        or powerOn
+        or not box
+        or roundState:GetAttribute("Phase") ~= "Active"
+        or roundState:GetAttribute("RoundId") ~= repair.roundId
+        or os.clock() - repair.started < MIN_REPAIR_SECONDS
+        or player.Team ~= Teams.Protectors
+        or not humanoid
+        or humanoid.Health <= 0
+        or not root
+        or (root.Position - box.Position).Magnitude > REPAIR_RANGE
+        or not holdingScrewdriver(player)
+    then
+        endRepair(player, "Repair failed")
+        return
+    end
+    repairs[player] = nil
+    setPower(true)
+    remote:FireClient(player, "FuseEnd", "Power restored")
+end
+studioTriggers.FuseDone = finishRepair
+
+remote.OnServerEvent:Connect(function(player, action)
+    if action == "FuseDone" then
+        finishRepair(player)
+    elseif action == "FuseCancel" then
+        repairs[player] = nil
+    end
+end)
 
 -- Keys and escape --------------------------------------------------------------
 
@@ -322,6 +399,7 @@ end
 -- Round lifecycle --------------------------------------------------------------
 
 local function cleanup()
+    endAllRepairs(nil)
     if heartbeat then
         heartbeat:Disconnect()
         heartbeat = nil
@@ -421,6 +499,7 @@ roundState:GetAttributeChangedSignal("Phase"):Connect(function()
 end)
 
 Players.PlayerRemoving:Connect(function(player)
+    repairs[player] = nil
     if player == keyHolder and keys then
         local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
         dropKeys(root and root.Position - Vector3.new(0, 2.5, 0) or keys.Position)

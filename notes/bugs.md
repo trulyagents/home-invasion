@@ -17,6 +17,8 @@ fuse box on top of a hammer - objectives and weapons used the same spawn markers
 
 fuse box model invisible on a wall - the mesh draws about a stud off its part's centre so it was inside the wall. the stored model has an offset + 90° turn baked in now
 
+minigame clicks went through the cover - frames don't block clicks unless Active = true. also first person relocks the mouse every frame, a Modal button isn't enough. unlock it in a RenderStep bound at Last priority
+
 oct fixes
 - round stalled if someone failed to spawn (retries now)
 - player counted alive after character replaced
