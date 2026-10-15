@@ -12,7 +12,9 @@ files
 - WeaponServer - pickups, attacks, reload, damage
 - Config - stats per weapon, HouseWeapons = what spawns, Placeholder = block fallback if the template is missing. pickup 9 studs, max 2 weapons
 - WeaponClient - input, ammo, prompts, tracers
-- FirstPersonViewmodelClient - fp arms + weapon. rig arms colored to skin (avatar arms broke w/ layered clothing). slimmer than normal or they cover the screen. hidden when unarmed
+- FirstPersonViewmodelClient - fp arms + weapon. rig arm meshes are invisible and just drive the pose. what you see is dark sleeves (cylinders) + skin fists made of parts that follow them each frame. one-handed weapons park the left hand out of view. hidden when unarmed
+- attacks: each melee weapon has its own swing in MotionProfiles. knife jab, screwdriver overhand stab, tenderizer smash, crowbar sweep, poker lunge, machete diagonal slash. to tune one, multiply AttackSeconds by 10 in studio, fire the attack and screenshot mid-swing, then put it back
+- RightGrip up axis has to point across the handle (Angles(90,0,0)), not along it, or the forearm runs down the blade
 - GameFeelClient - camera kick on swing/hit, red edges + shake when hurt
 
 house weapon models (free models, see CREDITS, plus ai-generated ones)

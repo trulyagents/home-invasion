@@ -8,7 +8,6 @@ local remote = ReplicatedStorage:WaitForChild("HomeInvasionWeapons"):WaitForChil
 local BINDING = "HomeInvasionFirstPersonArms"
 local context
 local counts = { Equip = 0, Attack = 0, Reload = 0 }
-local ARM_THICKNESS = 0.65
 local armNames ={ "LeftUpperArm", "LeftLowerArm", "LeftHand", "RightUpperArm", "RightLowerArm", "RightHand" }
 local function preparePart(part)
     part.Anchored = true
@@ -57,36 +56,56 @@ local function startAction(name, duration)
     context.model:SetAttribute(name .. "Count", counts[name])
     context.model:SetAttribute("Action", name)
 end
--- Uses the rig's own simple arms, coloured to match the player's skin. Cloning the
--- avatar's real arms breaks with layered clothing and unusual body scales.
+local function addFollower(followers, model, target, size, offset, color, shape, material)
+    local part = Instance.new("Part")
+    part.Name = "ArmVisual"
+    part.Shape = shape or Enum.PartType.Block
+    part.Size = size
+    part.Color = color
+    part.Material = material or Enum.Material.SmoothPlastic
+    preparePart(part)
+    part.Parent = model
+    table.insert(followers, { part = part, target = target, offset = offset })
+end
+-- The rig's blocky arm meshes stay invisible and only drive the pose. What you see is
+-- a slim sleeve and a fist built from parts that follow them every frame.
 local function replaceArms(model, character)
     local colors = character:FindFirstChildOfClass("BodyColors")
+    local skin = colors and colors.RightArmColor3 or Color3.fromRGB(234, 184, 146)
+    local sleeve = Color3.fromRGB(38, 38, 44)
+    local cuff = Color3.fromRGB(28, 28, 32)
+    local followers = {}
+    local cylinder = CFrame.Angles(0, 0, math.pi / 2)
     for _, name in armNames do
         local template = model[name]
-        local source = character:FindFirstChild(name)
-            or character:FindFirstChild(name:sub(1, 4) == "Left" and "Left Arm" or "Right Arm")
-        if colors then
-            template.Color = name:sub(1, 4) == "Left" and colors.LeftArmColor3 or colors.RightArmColor3
-        elseif source and source:IsA("BasePart") then
-            template.Color = source.Color
-        end
         preparePart(template)
-        template.Transparency = 0
-        -- Full-size rig arms this close to the camera fill half the screen, so slim them down.
-        local thickness = name:find("Hand") and ARM_THICKNESS * 1.1 or ARM_THICKNESS
-        template.Size = Vector3.new(thickness, template.Size.Y, thickness)
+        template.Transparency = 1
+        if name:find("UpperArm") then
+            addFollower(followers, model, template, Vector3.new(template.Size.Y, 0.5, 0.5), cylinder, sleeve, Enum.PartType.Cylinder, Enum.Material.Fabric)
+        elseif name:find("LowerArm") then
+            local length = template.Size.Y
+            addFollower(followers, model, template, Vector3.new(length, 0.42, 0.42), cylinder, sleeve, Enum.PartType.Cylinder, Enum.Material.Fabric)
+            addFollower(followers, model, template, Vector3.new(0.14, 0.46, 0.46), CFrame.new(0, -length / 2 + 0.07, 0) * cylinder, cuff, Enum.PartType.Cylinder, Enum.Material.Fabric)
+        else
+            -- fist wraps the handle, which runs along the hand's look axis
+            addFollower(followers, model, template, Vector3.new(0.26, 0.3, 0.34), CFrame.new(0, 0.05, 0), skin)
+            addFollower(followers, model, template, Vector3.new(0.3, 0.12, 0.3), CFrame.new(0, 0.2, 0.01), skin)
+            for i = 0, 3 do
+                local z = -0.12 + i * 0.08
+                addFollower(followers, model, template, Vector3.new(0.09, 0.09, 0.09), CFrame.new(0.12, -0.06, z), skin, Enum.PartType.Ball)
+                addFollower(followers, model, template, Vector3.new(0.09, 0.09, 0.09), CFrame.new(-0.12, -0.06, z), skin, Enum.PartType.Ball)
+            end
+            addFollower(followers, model, template, Vector3.new(0.22, 0.09, 0.09), CFrame.new(0, -0.1, -0.17), skin, Enum.PartType.Cylinder)
+        end
     end
-    local shirt = character:FindFirstChildOfClass("Shirt")
-    if shirt then
-        shirt:Clone().Parent = model
-    end
+    return followers
 end
 local function build(character, camera, tool)
     local model = assets.Rig:Clone()
     model.Name = "HomeInvasionFirstPerson"
     model.Humanoid.EvaluateStateMachine = false
     model.Humanoid.RequiresNeck = false
-    replaceArms(model, character)
+    local followers = replaceArms(model, character)
     for _, part in model:GetDescendants() do
         if part:IsA("BasePart") then
             preparePart(part)
@@ -103,6 +122,7 @@ local function build(character, camera, tool)
         worldBeams = {},
         aim = 0,
         previousCamera = camera.CFrame,
+        followers = followers,
     }
     current.weaponId = tool and tool:GetAttribute("WeaponId") or "Unarmed"
     -- Weapons without their own first-person model borrow the crowbar's until one is made.
@@ -290,7 +310,8 @@ local function update(deltaTime)
     if current.weapon then
         current.weapon:PivotTo(camera.CFrame * pose)
         rightHand = pose * current.rightGrip.CFrame
-        leftHand = profile.FreeLeft and CFrame.new(-0.8, -1.12, -1.25) * CFrame.Angles(-0.4, 0, 0)
+        -- one-handed weapons keep the free hand down out of view
+        leftHand = profile.FreeLeft and CFrame.new(-0.9, -2.3, -1) * CFrame.Angles(-0.4, 0, 0)
             or pose * current.leftGrip.CFrame
         leftHand = addOffset(leftHand, leftDelta)
         local reloading = action and action.name == "Reload" and tool:GetAttribute("Reloading")
@@ -325,6 +346,9 @@ local function update(deltaTime)
     end
     positionArm(current, "Right", rightHand)
     positionArm(current, "Left", leftHand)
+    for _, follower in current.followers do
+        follower.part.CFrame = follower.target.CFrame * follower.offset
+    end
 end
 remote.OnClientEvent:Connect(function(action, tool, kind)
     if action ~= "WeaponAction" or kind ~= "Attack" or not context or context.tool ~= tool then

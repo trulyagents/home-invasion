@@ -16,11 +16,47 @@ local rangedAttack = {
     frame(0.2, pose(0, 0.015, 0.13, 5, 0, 0)),
     frame(1),
 }
-local meleeAttack = {
+-- each melee weapon gets its own swing so they feel different
+local knifeStab = {
     frame(0),
-    frame(0.22, pose(0.15, 0.25, 0.2, 10, -25, -30), pose(0.1, 0.15, 0)),
-    frame(0.52, pose(-0.8, 0.1, -0.15, -15, 35, 70), pose(0.2, 0.25, -0.1)),
-    frame(0.75, pose(-0.45, -0.15, 0, -10, 20, 40)),
+    frame(0.25, pose(0.05, -0.05, 0.25, 15, 0, 0)),
+    frame(0.5, pose(-0.15, 0.2, -0.75, -80, 5, 0)),
+    frame(0.65, pose(-0.12, 0.18, -0.65, -75, 5, 0)),
+    frame(1),
+}
+local overhandStab = {
+    frame(0),
+    frame(0.3, pose(0, 0.5, 0.15, 40, 0, -10)),
+    frame(0.55, pose(-0.2, -0.15, -0.55, -110, 5, 0)),
+    frame(0.7, pose(-0.18, -0.12, -0.5, -105, 5, 0)),
+    frame(1),
+}
+local hammerSmash = {
+    frame(0),
+    frame(0.35, pose(-0.05, 0.45, 0.2, 35, 0, -5)),
+    frame(0.55, pose(-0.2, -0.35, -0.45, -75, 5, 5)),
+    frame(0.7, pose(-0.18, -0.25, -0.4, -60, 5, 5)),
+    frame(1),
+}
+local wideSwing = {
+    frame(0),
+    frame(0.3, pose(0.35, 0.1, 0.15, 0, -50, -40)),
+    frame(0.6, pose(-1, 0, -0.4, -20, 70, 75)),
+    frame(0.8, pose(-0.7, -0.05, -0.25, -10, 50, 60)),
+    frame(1),
+}
+local lungeThrust = {
+    frame(0),
+    frame(0.3, pose(-0.1, 0.1, 0.3, -75, 0, 0)),
+    frame(0.5, pose(-0.2, 0.15, -1.1, -88, 5, 0)),
+    frame(0.62, pose(-0.2, 0.15, -1, -88, 5, 0)),
+    frame(1),
+}
+local diagonalSlash = {
+    frame(0),
+    frame(0.25, pose(0.25, 0.45, 0.15, 20, -20, -35)),
+    frame(0.55, pose(-0.9, -0.45, -0.3, -45, 35, 60)),
+    frame(0.75, pose(-0.6, -0.4, -0.2, -30, 25, 40)),
     frame(1),
 }
 return {
@@ -61,46 +97,46 @@ return {
             },
         },
         Machete = {
-            Hold = pose(0.72, -0.72, -1.35, -20, -10, -25),
+            Hold = pose(0.72, -0.62, -1.35, -20, -10, -25),
             FreeLeft = true,
             AttackSeconds = 0.48,
             Equip = equip,
-            Attack = meleeAttack,
+            Attack = diagonalSlash,
         },
         Crowbar = {
             Hold = pose(0.72, -0.25, -1.5, -15, -10, -25),
             FreeLeft = true,
-            AttackSeconds = 0.55,
+            AttackSeconds = 0.6,
             Equip = equip,
-            Attack = meleeAttack,
+            Attack = wideSwing,
         },
         KitchenKnife = {
-            Hold = pose(0.62, -0.62, -1.3, -10, -10, -20),
+            Hold = pose(0.62, -0.48, -1.3, -10, -10, -20),
             FreeLeft = true,
             AttackSeconds = 0.4,
             Equip = equip,
-            Attack = meleeAttack,
+            Attack = knifeStab,
         },
         Screwdriver = {
-            Hold = pose(0.6, -0.6, -1.25, -10, -10, -20),
+            Hold = pose(0.6, -0.48, -1.25, -10, -10, -20),
             FreeLeft = true,
-            AttackSeconds = 0.32,
+            AttackSeconds = 0.34,
             Equip = equip,
-            Attack = meleeAttack,
+            Attack = overhandStab,
         },
         MeatTenderizer = {
-            Hold = pose(0.66, -0.6, -1.35, -15, -10, -25),
+            Hold = pose(0.66, -0.5, -1.35, -15, -10, -25),
             FreeLeft = true,
-            AttackSeconds = 0.6,
+            AttackSeconds = 0.65,
             Equip = equip,
-            Attack = meleeAttack,
+            Attack = hammerSmash,
         },
         FireplacePoker = {
             Hold = pose(0.72, -0.4, -1.5, -15, -10, -25),
             FreeLeft = true,
             AttackSeconds = 0.6,
             Equip = equip,
-            Attack = meleeAttack,
+            Attack = lungeThrust,
         },
     },
 }
