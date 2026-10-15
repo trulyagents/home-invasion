@@ -67,8 +67,8 @@ local function addFollower(followers, model, target, size, offset, color, shape,
     part.Parent = model
     table.insert(followers, { part = part, target = target, offset = offset })
 end
--- The rig's blocky arm meshes stay invisible and only drive the pose. What you see is
--- a slim sleeve and a fist built from parts that follow them every frame.
+-- the rig's blocky arm meshes stay invisible and only drive the pose. What you see is
+-- a slim sleeve and a fist built from parts that follow them every frame
 local function replaceArms(model, character)
     local colors = character:FindFirstChildOfClass("BodyColors")
     local skin = colors and colors.RightArmColor3 or Color3.fromRGB(234, 184, 146)
@@ -125,7 +125,7 @@ local function build(character, camera, tool)
         followers = followers,
     }
     current.weaponId = tool and tool:GetAttribute("WeaponId") or "Unarmed"
-    -- Weapons without their own first-person model borrow the crowbar's until one is made.
+    -- weapons without their own first-person model borrow the crowbar's until one is made
     local viewId = current.weaponId
     if tool and not assets.Weapons:FindFirstChild(viewId) then
         viewId = "Crowbar"
@@ -263,7 +263,7 @@ local function update(deltaTime)
         return
     end
     local tool = equipped(character)
-    -- Bare block fists floating in view looked worse than nothing, so arms only show with a weapon.
+    -- bare block fists floating in view looked worse than nothing, so arms only show with a weapon
     if not tool then
         cleanup()
         return

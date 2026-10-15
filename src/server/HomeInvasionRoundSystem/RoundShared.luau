@@ -1,4 +1,4 @@
--- Round info that other server systems need but clients must not see.
+-- round info that other server systems need but clients must not see
 local RoundShared = {
     roundId = 0,
     traitor = nil, -- Player secretly working with the Invaders

@@ -1,4 +1,4 @@
--- Keypad for the safe that holds the car keys. The server picks the code and checks guesses.
+-- keypad for the safe that holds the car keys. The server picks the code and checks guesses
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")

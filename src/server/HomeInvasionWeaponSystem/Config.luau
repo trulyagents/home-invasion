@@ -4,7 +4,7 @@ return {
         { WeaponId = "Machete", DisplayName = "Machete" },
         { WeaponId = "Crowbar", DisplayName = "Crowbar" },
     },
-    -- Weapons that spawn around the house, in spawn order.
+    -- weapons that spawn around the house, in spawn order
     HouseWeapons = { "KitchenKnife", "MeatTenderizer", "Screwdriver", "FireplacePoker", "Crowbar" },
     PickupDistance = 9,
     MaximumWeapons = 2,
@@ -29,8 +29,8 @@ return {
             AttackCooldown = 0.55,
             MinimumFacingDot = 0.45,
         },
-        -- Household weapons. Nobody in the house owns a gun.
-        -- `Placeholder` is a simple block model, only used if the real one is missing from ServerStorage.
+        -- household weapons. Nobody in the house owns a gun.
+        -- `Placeholder` is a simple block model, only used if the real one is missing from ServerStorage
         KitchenKnife = {
             DisplayName = "Kitchen Knife",
             SpawnCount = 2,

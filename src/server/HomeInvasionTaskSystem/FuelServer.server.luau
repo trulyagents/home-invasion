@@ -1,5 +1,5 @@
--- The escape car starts out empty. Protectors carry a gas can from the house to the
--- car. Invaders can drain the tank, which sends the can back into the house.
+-- the escape car starts out empty. Protectors carry a gas can from the house to the
+-- car. Invaders can drain the tank, which sends the can back into the house
 local Players = game:GetService("Players")
 local ServerScriptService = game:GetService("ServerScriptService")
 
@@ -48,7 +48,7 @@ local function dropCan(position)
     canPrompt.Enabled = true
 end
 
--- Puts the can on a free spot in the house, away from everyone.
+-- puts the can on a free spot in the house, away from everyone
 local function hideCan()
     SpotPicker.release(spot)
     spot = SpotPicker.take(Config.GasMinDistance)

@@ -9,8 +9,8 @@ local remote = ReplicatedStorage:WaitForChild("HomeInvasionDoors"):WaitForChild(
 local panel = player:WaitForChild("PlayerGui"):WaitForChild("ContextInteractionHUD").Door
 local selected
 local help = player.PlayerGui:WaitForChild("HomeInvasionRoundHUD"):WaitForChild("Help")
--- Keep an open door selectable through its original doorway, without adding
--- invisible query parts that would block weapon or furniture raycasts.
+-- keep an open door selectable through its original doorway, without adding
+-- invisible query parts that would block weapon or furniture raycasts
 local function doorwayDistance(model, ray)
     local closedCollider = model:GetAttribute("DoorClosedCollider") or model:GetAttribute("ClosedPivot")
     local origin = closedCollider:PointToObjectSpace(ray.Origin)

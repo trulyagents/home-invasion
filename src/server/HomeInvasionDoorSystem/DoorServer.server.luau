@@ -58,7 +58,7 @@ local function publish(record)
     model:SetAttribute("DoorBroken", record.broken)
     model:SetAttribute("DoorMoving", record.motion ~= nil)
     model:SetAttribute("DoorHealth", record.health)
-    -- These old prompts are kept for rollback, never drawn or used for input.
+    -- these old prompts are kept for rollback, never drawn or used for input
     record.collider.DoorOpenPrompt.Enabled = false
     record.collider.DoorLockPrompt.Enabled = false
 end
@@ -244,8 +244,7 @@ for _, model in doorsFolder:GetChildren() do
         local _, angle = relativeRotation:ToOrientation()
         local collider = model.DoorCollider
         local size = collider.Size
-        -- Trim the probe at the jambs. The legacy leaf bounds include frame trim,
-        -- while the full physical collider continues to block the closed doorway.
+        -- shrink the check so it doesn't catch the door frame
         local probeSize = Vector3.new(
             math.max(
                 0.08,
@@ -303,7 +302,7 @@ remote.OnServerEvent:Connect(function(player, action, model)
 end)
 RunService.Heartbeat:Connect(function()
     local now = os.clock()
-    for _, record in pairs(records) do
+    for _, record in records do
         local picking = record.picking
         if picking and now - picking.started >= Config.PickSeconds then
             record.picking = nil
@@ -370,7 +369,7 @@ damageDoor.OnInvoke = function(player, model, damage)
         record.collider.CanCollide = false
         record.collider.CanQuery = false
         record.collider.BreachSound:Play()
-        for part in pairs(record.parts) do
+        for part in record.parts do
             if part.Parent then
                 part.Transparency = 1
             end
@@ -381,7 +380,7 @@ damageDoor.OnInvoke = function(player, model, damage)
 end
 damageDoor.Parent = script.Parent
 local function resetDoors()
-    for _, record in pairs(records) do
+    for _, record in records do
         record.motion = nil
         record.picking = nil
         record.locked, record.open, record.broken = false, false, false
@@ -390,7 +389,7 @@ local function resetDoors()
         place(record, 0)
         record.collider.CanCollide = true
         record.collider.CanQuery = true
-        for part, transparency in pairs(record.parts) do
+        for part, transparency in record.parts do
             if part.Parent then
                 part.Transparency = transparency
             end

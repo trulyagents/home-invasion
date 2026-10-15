@@ -1,6 +1,6 @@
 --!strict
 -- The fuse box repair: unscrew the four panel screws, then drag each wire to the terminal
--- of the same colour. The server decides whether the power actually comes back on.
+-- of the same colour. The server decides whether the power actually comes back on
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -67,7 +67,7 @@ local function label(parent: Instance, text: string, font: Font, size: number, c
     return l
 end
 
--- Window -------------------------------------------------------------------------
+-- window
 
 local window = Instance.new("Frame")
 window.Name = "Window"
@@ -114,7 +114,7 @@ board.BackgroundColor3 = Color3.fromRGB(24, 24, 26)
 board.Parent = window
 corner(board, 4)
 
--- Stage 2 lives underneath the cover plate.
+-- stage 2 lives underneath the cover plate
 local wireLayer = Instance.new("Frame")
 wireLayer.Name = "Wires"
 wireLayer.Size = UDim2.fromScale(1, 1)
@@ -133,7 +133,7 @@ local warning = label(cover, "DANGER\nHIGH VOLTAGE", HEAD, 22, Color3.fromRGB(22
 warning.Size = UDim2.fromScale(1, 1)
 warning.ZIndex = 6
 
--- State ----------------------------------------------------------------------------
+-- state
 
 local active = false
 local fuseBox: BasePart? = nil
@@ -188,7 +188,7 @@ local function closeMinigame(sendCancel: boolean)
     end
 end
 
--- Draws a straight bar between two points given in the board's own pixel space.
+-- draws a straight bar between two points given in the board's own pixel space
 local function placeLine(line: Frame, from: Vector2, to: Vector2)
     local delta = to - from
     line.Size = UDim2.fromOffset(delta.Magnitude, 6)
@@ -202,12 +202,12 @@ end
 
 local function pointer(): Vector2
     local mouse = UserInputService:GetMouseLocation()
-    -- GetMouseLocation includes the top bar inset; AbsolutePosition does not.
+    -- getMouseLocation includes the top bar inset; AbsolutePosition does not
     local inset = game:GetService("GuiService"):GetGuiInset()
     return mouse - inset - board.AbsolutePosition
 end
 
--- Stage 2: wires ------------------------------------------------------------------
+-- stage 2: wires
 
 local function buildWires()
     clearChildren(wireLayer)
@@ -294,7 +294,7 @@ local function buildWires()
     end))
 end
 
--- Stage 1: screws -----------------------------------------------------------------
+-- stage 1: screws
 
 local function buildScrews()
     cover.Visible = true
@@ -335,14 +335,14 @@ local function buildScrews()
     end
 end
 
--- Open / close --------------------------------------------------------------------
+-- open / close
 
 local function open(box: BasePart)
     closeMinigame(false)
     active = true
     fuseBox = box
     gui.Enabled = true
-    -- First person locks the mouse to the centre every frame; free it after the camera runs.
+    -- first person locks the mouse to the centre every frame; free it after the camera runs
     RunService:BindToRenderStep(MOUSE_BINDING, Enum.RenderPriority.Last.Value, function()
         UserInputService.MouseBehavior = Enum.MouseBehavior.Default
         UserInputService.MouseIconEnabled = true
@@ -370,7 +370,7 @@ local function open(box: BasePart)
         end
     end))
     table.insert(connections, RunService.RenderStepped:Connect(function()
-        -- Screw being held: spin it, remove it when the hold is long enough.
+        -- screw being held: spin it, remove it when the hold is long enough
         if heldScrew then
             local progress = (os.clock() - heldSince) / SCREW_HOLD_SECONDS
             heldScrew.Rotation = progress * 270
@@ -384,7 +384,7 @@ local function open(box: BasePart)
                 end
             end
         end
-        -- Walking off, dying or putting the screwdriver away cancels the repair.
+        -- walking off, dying or putting the screwdriver away cancels the repair
         local char = player.Character
         local root = char and char:FindFirstChild("HumanoidRootPart") :: BasePart?
         local tool = char and char:FindFirstChildOfClass("Tool")

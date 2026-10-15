@@ -20,7 +20,7 @@ local livePlayerCount = Config.MinimumPlayers
 local participantCount = 0
 local soloRound = false
 
--- This bypass cannot run in a live server, even when the config is published.
+-- only ever works in studio, even if the config gets published with it on
 local studioSoloEnabled = RunService:IsStudio() and Config.StudioSoloEnabled
 
 local function getRequiredPlayerCount()
@@ -34,7 +34,7 @@ local minimumPlayers = getRequiredPlayerCount()
 
 Players.CharacterAutoLoads = false
 
--- Tells individual players about secret roles. Never broadcast.
+-- tells individual players about secret roles. Never broadcast
 local secretRoleRemote = state:FindFirstChild("SecretRole") or Instance.new("RemoteEvent")
 secretRoleRemote.Name = "SecretRole"
 secretRoleRemote.Parent = state
@@ -67,7 +67,7 @@ local function holdInvader(player, entry, character)
     end
     local root = character:FindFirstChild("HumanoidRootPart")
     if root and not entry.heldRoot then
-        -- Anchoring on the server prevents entry; a client movement setting alone would not.
+        -- anchor on the server, a client side movement lock is easy to get around
         entry.previousRootAnchored = root.Anchored
         entry.heldRoot = root
         root.Anchored = true
@@ -75,7 +75,7 @@ local function holdInvader(player, entry, character)
     end
 end
 
--- A newer request supersedes a pending character load. Loads never overlap for a player.
+-- a newer spawn request replaces a pending one. one load at a time per player
 local function requestSpawn(player)
     local job = spawnJobs[player]
     if not job then
@@ -113,7 +113,7 @@ local function requestSpawn(player)
                 end
             elseif not success then
                 warn("Character load failed for " .. player.Name .. ": " .. tostring(failure))
-                -- Retry instead of leaving the player unready until the spawn timeout.
+                -- retry instead of leaving the player unready until the spawn timeout
                 failures = (failures or 0) + 1
                 if failures < 3 and revision == job.revision then
                     task.wait(1)
@@ -190,27 +190,27 @@ Players.PlayerRemoving:Connect(function(player)
     spawnJobs[player] = nil
     local connections = playerConnections[player]
     if connections then
-        for _, connection in pairs(connections) do
+        for _, connection in connections do
             connection:Disconnect()
         end
     end
     playerConnections[player] = nil
 end)
-for _, player in ipairs(Players:GetPlayers()) do
+for _, player in Players:GetPlayers() do
     setupPlayer(player)
 end
 
 local function countSurvivors()
     local invaders, protectors, loyal = 0, 0, 0
-    for player, entry in pairs(roster) do
-        -- Still spawning counts as alive; once ready, require a living humanoid.
+    for player, entry in roster do
+        -- still spawning counts as alive; once ready, require a living humanoid
         local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
         local alive = not entry.ready or (humanoid ~= nil and humanoid.Health > 0)
         if player.Parent == Players and alive then
             if entry.role == "Invaders" then
                 invaders += 1
             else
-                -- The public count includes the traitor so nobody can work out who it is.
+                -- the public count includes the traitor so nobody can work out who it is
                 protectors += 1
                 if not RoundShared.isTraitor(player) then
                     loyal += 1
@@ -229,7 +229,7 @@ local function eliminationResult()
 end
 
 local function recordResult(result)
-    -- Capture the final roster before lobby cleanup clears it.
+    -- capture the final roster before lobby cleanup clears it
     local invaders, protectors = countSurvivors()
     state:SetAttribute("WinnerTeam", result.winner)
     state:SetAttribute("ResultReason", result.reason)
@@ -240,7 +240,7 @@ local function recordResult(result)
 end
 
 local function returnEveryoneToLobby()
-    for _, player in ipairs(Players:GetPlayers()) do
+    for _, player in Players:GetPlayers() do
         sendToLobby(player)
         requestSpawn(player)
     end
@@ -249,7 +249,7 @@ end
 
 local function beginRound()
     local candidates = {}
-    for _, player in ipairs(Players:GetPlayers()) do
+    for _, player in Players:GetPlayers() do
         local job = spawnJobs[player]
         if job and not job.running then
             table.insert(candidates, player)
@@ -287,7 +287,7 @@ local function beginRound()
         local role = isInvader and "Invaders" or "Protectors"
         local spawnIndex = isInvader and index or index - invaderCount
         if soloRound then
-            -- Alternate roles so repeated solo rounds exercise both sets of spawns.
+            -- alternate roles so repeated solo rounds exercise both sets of spawns
             role = roundId % 2 == 1 and "Protectors" or "Invaders"
             spawnIndex = 1
         end
@@ -307,7 +307,7 @@ local function beginRound()
         requestSpawn(player)
     end
 
-    -- Secret roles. Candidates are already shuffled, so the list order is random.
+    -- secret roles. Candidates are already shuffled, so the list order is random
     if not soloRound and #protectorList >= Config.TraitorMinimumProtectors then
         RoundShared.traitor = table.remove(protectorList, 1)
     end
@@ -320,7 +320,7 @@ local function beginRound()
     local deadline = os.clock() + Config.SpawnTimeoutSeconds
     repeat
         local readyCount = 0
-        for _, entry in pairs(roster) do
+        for _, entry in roster do
             if entry.ready then
                 readyCount += 1
             end
@@ -329,7 +329,7 @@ local function beginRound()
             local traitor = RoundShared.traitor
             if traitor then
                 secretRoleRemote:FireClient(traitor, "Traitor")
-                for player, entry in pairs(roster) do
+                for player, entry in roster do
                     if entry.role == "Invaders" then
                         secretRoleRemote:FireClient(player, "TraitorIs", traitor.DisplayName)
                     end
@@ -375,11 +375,11 @@ while true do
         minimumPlayers = getRequiredPlayerCount()
     end
 
-    -- Everyone should be standing in the lobby before the countdown starts.
+    -- everyone should be standing in the lobby before the countdown starts
     local loadDeadline = os.clock() + Config.SpawnTimeoutSeconds
     while os.clock() < loadDeadline do
         local loading = false
-        for player, job in pairs(spawnJobs) do
+        for player, job in spawnJobs do
             if job.running or not player.Character then
                 loading = true
                 break
@@ -411,7 +411,7 @@ while true do
             local roundSeconds = soloRound and Config.StudioSoloRoundSeconds or Config.RoundSeconds
             local deadline = os.clock() + roundSeconds
             updateState("Active", roundSeconds, soloRound and "Studio solo test" or "Invasion in progress")
-            for player, entry in pairs(roster) do
+            for player, entry in roster do
                 releaseInvader(player, entry)
             end
 

@@ -1,5 +1,5 @@
--- Random scares during the invasion: the phone rings, a dog barks outside, thunder,
--- or the lights briefly flicker out.
+-- random scares during the invasion: the phone rings, a dog barks outside, thunder,
+-- or the lights briefly flicker out
 local Players = game:GetService("Players")
 local SoundService = game:GetService("SoundService")
 

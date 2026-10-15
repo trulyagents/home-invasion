@@ -1,5 +1,5 @@
--- The car keys turn up locked in a safe. The 3-digit code is split across notes hidden
--- around the house. Reading a note tells every protector that digit.
+-- the car keys turn up locked in a safe. The 3-digit code is split across notes hidden
+-- around the house. Reading a note tells every protector that digit
 local Players = game:GetService("Players")
 local ServerScriptService = game:GetService("ServerScriptService")
 
@@ -72,7 +72,7 @@ local function setup()
     publishClues()
 end
 
--- Wraps the car keys in a safe as soon as they appear.
+-- wraps the car keys in a safe as soon as they appear
 local function lockKeys()
     local keys = TaskKit.arena:FindFirstChild("Objectives") and TaskKit.arena.Objectives:FindFirstChild("CarKeys")
     if not keys or safe or code == "" then

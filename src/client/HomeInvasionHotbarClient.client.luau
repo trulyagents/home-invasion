@@ -89,7 +89,7 @@ local function handleInput(input, processed)
 end
 UserInputService.InputBegan:Connect(handleInput)
 
--- Core backpack is disabled once; only this hotbar owns weapon selection.
+-- core backpack is disabled once; only this hotbar owns weapon selection
 task.spawn(function()
     for attempt = 1, 10 do
         local success = pcall(function()
@@ -101,7 +101,7 @@ task.spawn(function()
         task.wait(0.2)
     end
 end)
--- Redraw only when tools move between the backpack and the character, or the round changes.
+-- redraw only when tools move between the backpack and the character, or the round changes
 local containerConnections = {}
 local function watch(container)
     if not container then

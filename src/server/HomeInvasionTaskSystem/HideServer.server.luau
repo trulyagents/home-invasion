@@ -1,5 +1,5 @@
--- Wardrobes protectors can hide in. One person per wardrobe. Invaders can search them,
--- which drags out whoever is inside.
+-- wardrobes protectors can hide in. One person per wardrobe. Invaders can search them,
+-- which drags out whoever is inside
 local Players = game:GetService("Players")
 local ServerScriptService = game:GetService("ServerScriptService")
 

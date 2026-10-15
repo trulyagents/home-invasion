@@ -1,5 +1,5 @@
--- Loud things protectors do (swinging, locking doors, wardrobe creaks, filling the car)
--- flash a rough marker for invaders so hiding and moving quietly matter.
+-- loud things protectors do (swinging, locking doors, wardrobe creaks, filling the car)
+-- flash a rough marker for invaders so hiding and moving quietly matter
 local Players = game:GetService("Players")
 local ServerStorage = game:GetService("ServerStorage")
 local Teams = game:GetService("Teams")

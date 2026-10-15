@@ -22,7 +22,7 @@ local attackFeedbackUntil = 0
 local function equippedWeapon()
     local character = player.Character
     if character then
-        for _, child in ipairs(character:GetChildren()) do
+        for _, child in character:GetChildren() do
             if child:IsA("Tool") and child:GetAttribute("HomeInvasionWeapon") then
                 return child
             end
@@ -79,7 +79,7 @@ local function refreshPrompt(model)
 end
 
 local function refreshPrompts()
-    for _, model in ipairs(drops:GetChildren()) do
+    for _, model in drops:GetChildren() do
         refreshPrompt(model)
     end
 end
@@ -143,7 +143,7 @@ local function watchTool(tool)
     connections.attributes = tool.AttributeChanged:Connect(refreshHUD)
     connections.ancestry = tool.AncestryChanged:Connect(function()
         if tool.Parent == nil then
-            for _, connection in pairs(connections) do
+            for _, connection in connections do
                 connection:Disconnect()
             end
             toolConnections[tool] = nil
@@ -154,11 +154,11 @@ local function watchTool(tool)
 end
 
 local function watchCharacter(character)
-    for _, connection in ipairs(characterConnections) do
+    for _, connection in characterConnections do
         connection:Disconnect()
     end
     table.clear(characterConnections)
-    for _, child in ipairs(character:GetChildren()) do
+    for _, child in character:GetChildren() do
         watchTool(child)
     end
     table.insert(
@@ -177,7 +177,7 @@ local function watchBackpack(backpack)
         backpackConnection:Disconnect()
     end
     backpackConnection = backpack.ChildAdded:Connect(watchTool)
-    for _, child in ipairs(backpack:GetChildren()) do
+    for _, child in backpack:GetChildren() do
         watchTool(child)
     end
 end

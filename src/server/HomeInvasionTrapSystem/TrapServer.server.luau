@@ -1,5 +1,5 @@
--- The Survivor (one random Protector) can put down nail-board traps.
--- Traps only hurt Invaders, and each one goes off once.
+-- the Survivor (one random Protector) can put down nail-board traps.
+-- Traps only hurt Invaders, and each one goes off once
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Teams = game:GetService("Teams")
@@ -31,7 +31,7 @@ end
 local function clearTraps()
     trapFolder:ClearAllChildren()
     table.clear(placed)
-    for _, player in ipairs(Players:GetPlayers()) do
+    for _, player in Players:GetPlayers() do
         player:SetAttribute("TrapsLeft", nil)
     end
 end
@@ -113,7 +113,7 @@ local function placeTrap(player)
         return
     end
 
-    -- Put the trap on the floor right in front of the player, using the server's position.
+    -- drop it on the floor in front of them, from where the server sees them
     local params = RaycastParams.new()
     params.FilterType = Enum.RaycastFilterType.Exclude
     params.FilterDescendantsInstances = { character, trapFolder }

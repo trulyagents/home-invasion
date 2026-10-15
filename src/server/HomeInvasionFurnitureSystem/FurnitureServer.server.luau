@@ -14,7 +14,7 @@ local sessions = {}
 local requestBudgets = {}
 local sessionSequence = 0
 
--- Reuse one exact-volume probe; broad bounding boxes can include empty union space.
+-- one reused probe, bounding boxes are too big for unions
 local movementProbe = Instance.new("Part")
 movementProbe.Name = "FurnitureMovementProbe"
 movementProbe.Anchored = true
@@ -91,7 +91,7 @@ local function release(player, reason)
         record.model:SetAttribute("DraggedByUserId", 0)
         record.prompt.Enabled = false
     end
-    -- Avoid overwriting a speed change made by a different system while dragging.
+    -- avoid overwriting a speed change made by a different system while dragging
     if session.humanoid.Parent and session.humanoid.WalkSpeed == session.appliedWalkSpeed then
         session.humanoid.WalkSpeed = session.previousWalkSpeed
     end
@@ -220,7 +220,7 @@ local function grab(player, model, hitPosition)
 end
 
 remote.OnServerEvent:Connect(function(player, action, sessionIdOrModel, value)
-    -- Releasing never waits behind an input budget, and stale sessions cannot drop a new grab.
+    -- letting go always works, even when rate limited, and an old grab can't drop a new one
     if action == "Drop" then
         local session = sessions[player]
         if session and session.id == sessionIdOrModel then
@@ -284,7 +284,7 @@ remote.OnServerEvent:Connect(function(player, action, sessionIdOrModel, value)
     end
 end)
 
-for _, model in ipairs(furnitureFolder:GetChildren()) do
+for _, model in furnitureFolder:GetChildren() do
     if model:IsA("Model") and model:FindFirstChild("DragCollider") then
         local collider = model.DragCollider
         local record = {
@@ -303,7 +303,7 @@ for _, model in ipairs(furnitureFolder:GetChildren()) do
         }
         record.health = record.maximumHealth
         record.promptText = record.prompt.ObjectText
-        for _, part in ipairs(model:GetDescendants()) do
+        for _, part in model:GetDescendants() do
             if part:IsA("BasePart") then
                 record.parts[part] = {
                     transparency = part.Transparency,
@@ -321,8 +321,7 @@ for _, model in ipairs(furnitureFolder:GetChildren()) do
     end
 end
 
--- Server-only entry point. WeaponServer validates the equipped weapon, reach,
--- facing, line of sight and swing cooldown before invoking this.
+-- weaponServer already checked reach, facing and cooldown before calling this
 local damageBarricade = Instance.new("BindableFunction")
 damageBarricade.Name = "DamageBarricade"
 damageBarricade.OnInvoke = function(player, model, damage)
@@ -355,7 +354,7 @@ damageBarricade.OnInvoke = function(player, model, damage)
         end
         model:SetAttribute("BarricadeBroken", true)
         record.prompt.Enabled = false
-        for part in pairs(record.parts) do
+        for part in record.parts do
             if part.Parent then
                 part.Transparency = 1
                 part.CanCollide = false
@@ -373,17 +372,17 @@ damageBarricade.Parent = script.Parent
 
 local function resetFurniture()
     local holders = {}
-    for player in pairs(sessions) do
+    for player in sessions do
         table.insert(holders, player)
     end
-    for _, player in ipairs(holders) do
+    for _, player in holders do
         release(player, "Round ended")
     end
-    for model, record in pairs(furnitureRecords) do
+    for model, record in furnitureRecords do
         if model.Parent == furnitureFolder then
             record.broken = false
             record.health = record.maximumHealth
-            for part, properties in pairs(record.parts) do
+            for part, properties in record.parts do
                 if part.Parent then
                     part.Transparency = properties.transparency
                     part.CanCollide = properties.canCollide
@@ -454,14 +453,14 @@ local function slideMovement(current, size, translation, castParams, overlapPara
             candidate = destination
         end
         remaining -= travel
-        -- Remove the blocked component and retain motion along the wall.
+        -- slide along the wall instead of stopping
         remaining = remaining - hit.Normal * remaining:Dot(hit.Normal)
     end
     return candidate
 end
 
--- Furniture remains anchored. The server moves a solid collider after checking the
--- swept path and destination, so a client cannot fling or teleport a barricade.
+-- furniture remains anchored. The server moves a solid collider after checking the
+-- swept path and destination, so a client can't fling or teleport a barricade
 local function stepSession(player, session, deltaTime)
     local root = canInteract(player)
     local record = session.record
@@ -506,7 +505,7 @@ local function stepSession(player, session, deltaTime)
     local nextPosition = current.Position + delta
 
     local groundExclusions = { furnitureFolder }
-    for _, otherPlayer in ipairs(Players:GetPlayers()) do
+    for _, otherPlayer in Players:GetPlayers() do
         if otherPlayer.Character then
             table.insert(groundExclusions, otherPlayer.Character)
         end
@@ -522,7 +521,7 @@ local function stepSession(player, session, deltaTime)
         or ground.Normal.Y < 0.9
         or math.abs(ground.Position.Y - record.homeFloorY) > Config.MaximumFloorChange
     then
-        -- Tell the player once, instead of the furniture just freezing.
+        -- tell the player once, instead of the furniture just freezing
         if not session.floorBlocked then
             session.floorBlocked = true
             notify(player, "Blocked", "Furniture has to stay on this floor")
@@ -544,7 +543,7 @@ local function stepSession(player, session, deltaTime)
 
     local colliderSize = record.collider.Size - Vector3.one * Config.CollisionInset
     local castParams, overlapParams = movementParams(record, player.Character)
-    -- Collision runs on the DragCollider box, which may not sit at the model pivot.
+    -- collision runs on the DragCollider box, which may not sit at the model pivot
     local colliderOffset = current:ToObjectSpace(record.collider.CFrame)
     local candidate = slideMovement(
         current * colliderOffset,
@@ -582,7 +581,7 @@ RunService.Heartbeat:Connect(function(deltaTime)
     end
     local stepSeconds = math.min(accumulatedSeconds, 0.05)
     accumulatedSeconds = 0
-    for player, session in pairs(sessions) do
+    for player, session in sessions do
         stepSession(player, session, stepSeconds)
     end
 end)

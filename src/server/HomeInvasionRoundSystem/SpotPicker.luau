@@ -1,6 +1,6 @@
 --!strict
 -- Hands out the WeaponSpawns markers so weapons, objectives and task items never share
--- a spot. Weapons spawn first; everything else takes what's left.
+-- a spot. Weapons spawn first; everything else takes what's left
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -22,7 +22,7 @@ local function syncRound()
     end
 end
 
--- Weapons go down at the start of preparation. Give them up to 3s so we don't steal a weapon spot.
+-- weapons go down at the start of preparation. Give them up to 3s so a task item doesn't take a weapon spot
 local function waitForWeapons()
     local pickups = arena:FindFirstChild("WeaponPickups")
     local roundId = roundState:GetAttribute("RoundId")
@@ -68,8 +68,8 @@ local function playerPositions(): { Vector3 }
     return positions
 end
 
--- Claims a free spot. With minDistance, prefers spots at least that far from every player
--- in the round, falling back to the farthest one. Returns nil when the house is full.
+-- claims a free spot. With minDistance, prefers spots at least that far from every player
+-- in the round, falling back to the farthest one. Returns nil when the house is full
 function SpotPicker.take(minDistance: number?): BasePart?
     waitForWeapons()
     local spots = freeMarkers()

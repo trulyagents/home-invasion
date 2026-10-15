@@ -1,4 +1,4 @@
--- Noise markers for invaders, plus the thunder flash and short blackouts from random events.
+-- noise markers for invaders, plus the thunder flash and short blackouts from random events
 local Lighting = game:GetService("Lighting")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")

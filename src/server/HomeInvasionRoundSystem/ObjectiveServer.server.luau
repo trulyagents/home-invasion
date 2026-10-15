@@ -1,11 +1,5 @@
--- Gives the Protectors something to do besides hide:
---   * The power goes out when the Invaders arrive. Protectors fix it at the fuse box with
---     a screwdriver and a short repair minigame. Invaders can cut it again.
---   * Once the power is back on, car keys turn up somewhere in the house, away from
---     everyone. A Protector who reaches the escape point with them wins the round.
---
--- To place things yourself, add parts named "FuseBox" and "EscapePoint" to
--- workspace.HomeInvasionPrototype. Otherwise they get placed automatically.
+-- power goes out when invaders show up, protectors fix it at the fuse box, then car keys
+-- spawn and whoever gets them to the escape point wins
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -39,8 +33,8 @@ local objectiveFolder = Instance.new("Folder")
 objectiveFolder.Name = "Objectives"
 objectiveFolder.Parent = arena
 
--- Puts a nicer model on top of a plain objective part if one is stored in
--- ServerStorage.HomeInvasionObjectiveModels. The model's pivot lines up with the part.
+-- puts a nicer model on top of a plain objective part if one is stored in
+-- ServerStorage.HomeInvasionObjectiveModels. The model's pivot lines up with the part
 local function dress(part, modelName)
     local template = objectiveModels and objectiveModels:FindFirstChild(modelName)
     if not template then
@@ -49,7 +43,7 @@ local function dress(part, modelName)
     local model = template:Clone()
     model.Name = "Visual"
     model:PivotTo(part.CFrame)
-    for _, child in ipairs(model:GetDescendants()) do
+    for _, child in model:GetDescendants() do
         if child:IsA("BasePart") then
             child:SetAttribute("BaseTransparency", child.Transparency)
             child.Anchored = true
@@ -63,7 +57,7 @@ local function dress(part, modelName)
 end
 
 -- Studio only: lets play tests run the same code as pressing a prompt, since prompts
--- can't be pressed from automated tests. Never created in a live game.
+-- can't be pressed from automated tests. Never created in a live game
 local studioTriggers = {}
 if RunService:IsStudio() then
     local hook = Instance.new("BindableFunction")
@@ -79,7 +73,7 @@ if RunService:IsStudio() then
     hook.Parent = ServerStorage
 end
 
--- Power ----------------------------------------------------------------------
+-- power
 
 local spawnKeys -- set further down, called when the power first comes back
 
@@ -100,7 +94,7 @@ local function endRepair(player, message)
 end
 
 local function endAllRepairs(message)
-    for player in pairs(repairs) do
+    for player in repairs do
         endRepair(player, message)
     end
 end
@@ -123,12 +117,12 @@ local function setPower(on)
             Ambient = Lighting.Ambient,
             OutdoorAmbient = Lighting.OutdoorAmbient,
         }
-        -- Dark enough to be scary, light enough to still find the fuse box.
+        -- dark but you can still find the fuse box
         Lighting.Brightness = math.min(Lighting.Brightness, 0.6)
         Lighting.Ambient = Color3.fromRGB(26, 28, 38)
         Lighting.OutdoorAmbient = Color3.fromRGB(40, 44, 60)
-        -- The whole map, not just the arena: the house's own lamps live outside it.
-        for _, light in ipairs(workspace:GetDescendants()) do
+        -- whole map, the house lamps aren't inside the arena
+        for _, light in workspace:GetDescendants() do
             if
                 light:IsA("Light")
                 and light.Enabled
@@ -142,12 +136,12 @@ local function setPower(on)
         end
     else
         if savedLighting then
-            for property, value in pairs(savedLighting) do
+            for property, value in savedLighting do
                 Lighting[property] = value
             end
             savedLighting = nil
         end
-        for light in pairs(savedLights) do
+        for light in savedLights do
             if light.Parent then
                 light.Enabled = true
             end
@@ -219,7 +213,7 @@ local function makeFuseBox(cframe)
     return prompt
 end
 
--- The client says the minigame is done. Check everything again before believing it.
+-- the client says the minigame is done. Check everything again before believing it
 local function finishRepair(player)
     local repair = repairs[player]
     local box = fusePrompt and fusePrompt.Parent
@@ -257,7 +251,7 @@ remote.OnServerEvent:Connect(function(player, action)
     end
 end)
 
--- Keys and escape --------------------------------------------------------------
+-- keys and escape
 
 local keys, keysPrompt, keyHolder, escapePart
 local heartbeat
@@ -276,7 +270,7 @@ end
 local function setKeysVisible(part, visible)
     local visual = part:FindFirstChild("Visual")
     if visual then
-        for _, child in ipairs(visual:GetDescendants()) do
+        for _, child in visual:GetDescendants() do
             if child:IsA("BasePart") then
                 child.Transparency = visible and child:GetAttribute("BaseTransparency") or 1
             end
@@ -348,8 +342,8 @@ local function makeKeys(cframe)
     return part, prompt
 end
 
--- Parks the getaway car (ServerStorage.HomeInvasionObjectiveModels.EscapeCar) beside the pad.
--- The car's pivot should be at the bottom centre of the car.
+-- parks the getaway car (ServerStorage.HomeInvasionObjectiveModels.EscapeCar) beside the pad.
+-- The car's pivot should be at the bottom centre of the car
 local function parkCar(pad)
     local template = objectiveModels and objectiveModels:FindFirstChild("EscapeCar")
     if not template then
@@ -372,7 +366,7 @@ local function makeEscapePoint()
         parkCar(existing)
         return existing
     end
-    -- No escape point placed yet, so use the road where the Invaders start.
+    -- no escape point placed yet, so use the road where the Invaders start
     local invaderSpawn = arena.Spawns.Invaders:FindFirstChild("1")
     local part = Instance.new("Part")
     part.Name = "EscapePoint"
@@ -402,7 +396,7 @@ local function makeEscapePoint()
     return part
 end
 
--- Keys go on a free spot far from every player in the round, so nobody gets them for free.
+-- keys go on a free spot far from every player in the round, so nobody gets them for free
 spawnKeys = function()
     if keys or not escapePart then
         return
@@ -414,14 +408,14 @@ spawnKeys = function()
     end
     keys, keysPrompt = makeKeys(spot.CFrame)
     roundState:SetAttribute("KeysOut", true)
-    for _, player in ipairs(Players:GetPlayers()) do
+    for _, player in Players:GetPlayers() do
         if player.Team == Teams.Protectors and player:GetAttribute("InRound") then
             remote:FireClient(player, "Notice", "Power's back. The car keys are somewhere in the house")
         end
     end
 end
 
--- Round lifecycle --------------------------------------------------------------
+-- round lifecycle
 
 local function cleanup()
     endAllRepairs(nil)
@@ -476,7 +470,7 @@ roundState:GetAttributeChangedSignal("Phase"):Connect(function()
     if phase == "Preparation" then
         setupRound()
     elseif phase == "Active" then
-        -- The Invaders cut the power as they arrive.
+        -- the Invaders cut the power as they arrive
         lastCut = os.clock()
         setPower(false)
     else

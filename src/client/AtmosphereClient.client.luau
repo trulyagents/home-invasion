@@ -1,7 +1,5 @@
 --!strict
--- Horror sound cues: a heartbeat for Protectors that gets louder as an Invader gets close,
--- a power-down sound when the lights go out, and a faint glow around you in the dark
--- (only you can see it) so a blackout is scary rather than unplayable.
+-- heartbeat when an invader's close, blackout sound, and a small glow so you can see in the dark
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -22,7 +20,7 @@ local function nearestInvaderDistance(position: Vector3): number
     if not invaders then
         return nearest
     end
-    for _, other in ipairs((invaders :: Team):GetPlayers()) do
+    for _, other in (invaders :: Team):GetPlayers() do
         local character = other.Character
         local root = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
         local humanoid = character and character:FindFirstChildOfClass("Humanoid")

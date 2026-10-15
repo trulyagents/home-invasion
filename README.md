@@ -1,40 +1,46 @@
 # Home Invasion
 
-A Roblox horror game inspired by *You're Next*. Masked Invaders break into a house, and the people inside have to fight back or get out.
+roblox horror game, kinda based on *You're Next*. people in masks break into a house and everyone inside has to fight back or get out
 
-Protectors get a prep phase to grab whatever they can find (knives, a hammer, a screwdriver, a fire poker), lock doors and barricade with furniture. Then the power cuts out and the Invaders come in wearing animal masks, armed with crossbows, machetes and crowbars.
+**protectors** get 45 seconds to prep. grab whatever's lying around (kitchen knife, meat tenderizer, screwdriver, fire poker, crowbar), lock doors, shove furniture in front of them. then the power goes out and the invaders show up in animal masks with crossbows, machetes and crowbars
 
-- **Escape:** find the car keys and get to the road.
-- **The traitor:** one Protector secretly hired the Invaders.
-- **The Survivor:** one Protector can set nail traps.
-- **Lights out:** fix the fuse box to get the lights back on.
+ways to win as a protector:
+- **escape** - fix the fuse box (need the screwdriver), find the notes with the safe code, open the safe for the car keys, get gas in the car, drive off
+- **call the cops** - use the landline and survive till they get there
+- or just kill all the invaders
 
-Protectors win by escaping or taking out the Invaders. Invaders win if nobody gets out before dawn.
+other stuff:
+- one protector is secretly a **traitor** working with the invaders (4+ players)
+- one protector is the **survivor** and can put down nail traps
+- you can hide in wardrobes
+- invaders can pick locks, cut the phone line, drain the car and search wardrobes. they see a red ring when protectors make noise
+- random stuff happens (phone rings, dog barking, thunder, lights flicker out)
 
-## Running it
+invaders win if nobody gets out before dawn
 
-You need [Rokit](https://github.com/rojo-rbx/rokit) and Roblox Studio.
+## running it
+
+need [Rokit](https://github.com/rojo-rbx/rokit) and roblox studio
 
 ```
 rokit install
 rojo serve
 ```
 
-Then open the place in Studio and connect with the Rojo plugin.
+open the place in studio and connect the rojo plugin
 
-## Layout
+## where stuff is
 
 ```
 src/
   server/    ServerScriptService
   client/    StarterPlayerScripts
-notes/       my notes on how stuff works
-tools/       helper scripts (run with Lune)
-extracted/   copies of scripts that live inside models and UI (not synced)
+notes/       my notes on how everything works
+tools/       lune scripts (compile check, extracting scripts from the place)
+extracted/   copies of scripts that live inside models/ui (not synced)
+models/      blender files
 ```
 
-The map, models, UI and weapon tools live in the place file, not in this repo.
+the map, models, ui and weapon tools are in the place file, not here
 
-Code from other creators is listed in [CREDITS.md](CREDITS.md).
-
-More details are in [notes/](notes/README.md).
+stuff other people made is in [CREDITS.md](CREDITS.md). more details in [notes/](notes/README.md)

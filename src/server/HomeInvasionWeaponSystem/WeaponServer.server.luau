@@ -28,7 +28,7 @@ local requestBudgets = {}
 local spawnedRoundId = nil
 local invaderLoadoutRounds = {}
 
--- Builds a simple stand-in tool for weapons that don't have a model in ServerStorage yet.
+-- builds a simple stand-in tool for weapons that don't have a model in ServerStorage yet
 local function buildPlaceholderTool(weaponId, definition)
     local look = definition.Placeholder
     local tool = Instance.new("Tool")
@@ -66,7 +66,7 @@ local function buildPlaceholderTool(weaponId, definition)
     tool.Parent = templates
 end
 
-for weaponId, definition in pairs(Config.Weapons) do
+for weaponId, definition in Config.Weapons do
     if definition.Placeholder and not templates:FindFirstChild(weaponId) then
         buildPlaceholderTool(weaponId, definition)
     end
@@ -95,7 +95,7 @@ end
 
 local function updateDropCount()
     local count = 0
-    for _ in pairs(drops) do
+    for _ in drops do
         count += 1
     end
     roundState:SetAttribute("WeaponsRemaining", count)
@@ -134,27 +134,19 @@ local function removeWeapon(tool)
 end
 
 local function clearPlayerWeapons(player)
-    local owned = {}
-    for tool, record in pairs(weaponRecords) do
+    for tool, record in weaponRecords do
         if record.owner == player then
-            table.insert(owned, tool)
+            removeWeapon(tool)
         end
-    end
-    for _, tool in ipairs(owned) do
-        removeWeapon(tool)
     end
 end
 
 local function clearRoundWeapons()
-    for model in pairs(drops) do
+    for model in drops do
         drops[model] = nil
         model:Destroy()
     end
-    local tools = {}
-    for tool in pairs(weaponRecords) do
-        table.insert(tools, tool)
-    end
-    for _, tool in ipairs(tools) do
+    for tool in weaponRecords do
         removeWeapon(tool)
     end
     updateDropCount()
@@ -176,7 +168,7 @@ local function spawnRoundWeapons()
             availableMarkers[swapIndex], availableMarkers[index]
     end
     local markerIndex = 0
-    for _, weaponId in ipairs(Config.HouseWeapons) do
+    for _, weaponId in Config.HouseWeapons do
         local definition = Config.Weapons[weaponId]
         for _ = 1, definition.SpawnCount do
             markerIndex += 1
@@ -184,11 +176,11 @@ local function spawnRoundWeapons()
             assert(marker, "Not enough house weapon spawn markers")
             local model = Instance.new("Model")
             model.Name = definition.DisplayName .. " Pickup"
-            for _, child in ipairs(templates[weaponId]:GetChildren()) do
+            for _, child in templates[weaponId]:GetChildren() do
                 child:Clone().Parent = model
             end
             model.PrimaryPart = model.Handle
-            for _, item in ipairs(model:GetDescendants()) do
+            for _, item in model:GetDescendants() do
                 if item:IsA("BasePart") then
                     item.Anchored = true
                     item.CanCollide = false
@@ -305,16 +297,16 @@ end
 
 local function grantInvaderLoadouts()
     local roundId = roundState:GetAttribute("RoundId")
-    for _, player in ipairs(Players:GetPlayers()) do
+    for _, player in Players:GetPlayers() do
         if
             player.Team == Teams.Invaders
             and isParticipant(player)
             and livingCharacter(player)
             and invaderLoadoutRounds[player] ~= roundId
         then
-            -- Grant once per admitted player, never on respawn or Active transitions.
+            -- only give the loadout once per round, not on respawn
             invaderLoadoutRounds[player] = roundId
-            for _, item in ipairs(Config.InvaderLoadout) do
+            for _, item in Config.InvaderLoadout do
                 grantWeapon(player, item.WeaponId, roundId, item.DisplayName)
             end
         end
@@ -357,7 +349,7 @@ local function pickUp(player, model)
         return
     end
     local ownedCount = 0
-    for _, record in pairs(weaponRecords) do
+    for _, record in weaponRecords do
         if record.owner == player then
             ownedCount += 1
             if record.weaponId == drop.weaponId then
@@ -374,7 +366,7 @@ local function pickUp(player, model)
     if not backpack then
         return
     end
-    -- Claim and grant without yielding so two requests cannot collect one pickup.
+    -- claim and give it in one go (no yielding) so two players can't grab the same pickup
     local tool = grantWeapon(player, drop.weaponId, drop.roundId)
     if not tool then
         return
@@ -423,7 +415,7 @@ local function enemyHumanoid(attacker, model)
         if not isParticipant(targetPlayer) then
             return nil
         end
-        -- The traitor can hurt Protectors. Invaders can't hurt the traitor.
+        -- the traitor can hurt Protectors. Invaders can't hurt the traitor
         if targetPlayer.Team == attacker.Team and not RoundShared.isTraitor(attacker) then
             return nil
         end
@@ -473,7 +465,7 @@ local function nearestBreakable(player, character, root, definition, folder, col
     end
     local nearestModel = nil
     local nearestDistance = math.huge
-    for _, model in ipairs(folder:GetChildren()) do
+    for _, model in folder:GetChildren() do
         if model:IsA("Model") then
             local collider = model:FindFirstChild(colliderName)
             if
@@ -573,10 +565,8 @@ local function attack(player, tool, direction)
         local params = RaycastParams.new()
         params.FilterType = Enum.RaycastFilterType.Exclude
         params.FilterDescendantsInstances = { character, dropsFolder, markers }
-        -- Queryable character parts can be hit even when they do not physically collide.
+        -- limbs count even if they don't collide, triggers and zones don't
         params.RespectCanCollide = false
-        -- Skip non-colliding world parts (triggers, zones) so they don't block shots;
-        -- non-colliding character limbs still count as hits.
         local ignored = { character, dropsFolder, markers }
         local result
         for _ = 1, 8 do
@@ -606,7 +596,7 @@ local function attack(player, tool, direction)
         local checked = {}
         local nearestHumanoid = nil
         local nearestDistance = definition.Range + 1
-        for _, part in ipairs(workspace:GetPartBoundsInRadius(root.Position, definition.Range, params)) do
+        for _, part in workspace:GetPartBoundsInRadius(root.Position, definition.Range, params) do
             local model = findCharacter(part)
             if model and not checked[model] then
                 checked[model] = true
@@ -664,7 +654,7 @@ local function attack(player, tool, direction)
             end
         end
 
-        -- One swing hits the closest eligible target; cover blocks targets behind it.
+        -- one swing hits the closest eligible target; cover blocks targets behind it
         if breakable and breakableDistance <= nearestDistance then
             local health = breachFunction:Invoke(player, breakable, breachDamage)
             if health then
@@ -763,7 +753,7 @@ Players.PlayerRemoving:Connect(function(player)
     clearPlayerWeapons(player)
     local connections = playerConnections[player]
     if connections then
-        for _, connection in pairs(connections) do
+        for _, connection in connections do
             connection:Disconnect()
         end
     end
@@ -771,7 +761,7 @@ Players.PlayerRemoving:Connect(function(player)
     requestBudgets[player] = nil
     invaderLoadoutRounds[player] = nil
 end)
-for _, player in ipairs(Players:GetPlayers()) do
+for _, player in Players:GetPlayers() do
     setupPlayer(player)
 end
 

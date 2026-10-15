@@ -1,6 +1,5 @@
 --!strict
--- Screen feedback that makes fights feel heavier: camera kick when you swing or land a hit,
--- a red edge flash and shake when you get hurt, and a faint red edge while badly hurt.
+-- camera kick on swings and hits, red flash and shake when you get hurt
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -18,7 +17,7 @@ gui.ResetOnSpawn = false
 gui.DisplayOrder = -1
 gui.Parent = player:WaitForChild("PlayerGui")
 
--- Four edge strips that fade toward the middle of the screen.
+-- four edge strips that fade toward the middle of the screen
 local edges: { Frame } = {}
 local function edge(position: UDim2, size: UDim2, rotation: number)
     local frame = Instance.new("Frame")

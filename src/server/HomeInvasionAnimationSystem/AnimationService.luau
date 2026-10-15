@@ -15,7 +15,7 @@ local function cacheFor(character)
     cache = { tracks = {}, animator = animator }
     caches[character] = cache
     cache.cleanup = character.Destroying:Connect(function()
-        for _, track in pairs(cache.tracks) do
+        for _, track in cache.tracks do
             track:Stop(0)
             track:Destroy()
         end
@@ -67,7 +67,7 @@ function AnimationService.stopActions(character)
     if not cache then
         return
     end
-    for _, track in pairs(cache.tracks) do
+    for _, track in cache.tracks do
         track:Stop(0.12)
     end
 end

@@ -1,4 +1,4 @@
--- Shows secret roles (traitor, survivor), trap controls, and objective hints.
+-- shows secret roles (traitor, survivor), trap controls, and objective hints
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
@@ -32,7 +32,7 @@ local function label(name, position, size, textSize)
 end
 
 local banner = label("Banner", UDim2.fromScale(0.5, 0.22), UDim2.fromOffset(640, 100), 32)
--- Sits above the weapon status and notices at the bottom of the screen.
+-- sits above the weapon status and notices at the bottom of the screen
 local info = label("Info", UDim2.new(0.5, 0, 1, -168), UDim2.fromOffset(600, 120), 17)
 info.AnchorPoint = Vector2.new(0.5, 1)
 info.TextYAlignment = Enum.TextYAlignment.Bottom

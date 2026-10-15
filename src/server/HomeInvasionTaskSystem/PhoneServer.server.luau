@@ -1,5 +1,5 @@
--- Landline phone. A protector can call the police, and if the house holds out until
--- they arrive, protectors win. Invaders can cut the line, which kills the phone for the round.
+-- landline phone. A protector can call the police, and if the house holds out until
+-- they arrive, protectors win. Invaders can cut the line, which kills the phone for the round
 local RunService = game:GetService("RunService")
 local ServerScriptService = game:GetService("ServerScriptService")
 

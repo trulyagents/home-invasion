@@ -1,5 +1,5 @@
 --!strict
--- Small helpers every task script uses: prompts, player checks, notices, models.
+-- Small helpers every task script uses: prompts, player checks, notices, models
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerStorage = game:GetService("ServerStorage")
@@ -23,7 +23,7 @@ taskFolder.Name = "Tasks"
 taskFolder.Parent = TaskKit.arena
 TaskKit.folder = taskFolder
 
--- Notices show up through the fuse box client, which already draws them.
+-- notices show up through the fuse box client, which already draws them
 local noticeRemote = ReplicatedStorage:WaitForChild("HomeInvasionObjectives"):WaitForChild("Interaction") :: RemoteEvent
 
 function TaskKit.notify(player: Player, message: string)
@@ -44,7 +44,7 @@ function TaskKit.phase(): string?
     return TaskKit.roundState:GetAttribute("Phase")
 end
 
--- Returns the root part if the player is alive, in the round and on the given team.
+-- returns the root part if the player is alive, in the round and on the given team
 function TaskKit.validPlayer(player: Player, teamName: string?): BasePart?
     local character = player.Character
     local humanoid = character and character:FindFirstChildOfClass("Humanoid")
@@ -67,7 +67,7 @@ function TaskKit.inRange(player: Player, part: BasePart, range: number): boolean
     return root ~= nil and (root.Position - part.Position).Magnitude <= range
 end
 
--- ForTeam lets the client hide prompts meant for the other side. The server still checks.
+-- forTeam lets the client hide prompts meant for the other side. The server still checks
 function TaskKit.prompt(parent: Instance, objectText: string, actionText: string, hold: number, forTeam: string?, key: Enum.KeyCode?): ProximityPrompt
     local prompt = Instance.new("ProximityPrompt")
     prompt.ObjectText = objectText
@@ -84,7 +84,7 @@ function TaskKit.prompt(parent: Instance, objectText: string, actionText: string
 end
 
 -- Studio only: automated tests can't press prompts, so they invoke
--- ServerStorage.StudioTaskTest with (prompt, player) to run the same handler.
+-- ServerStorage.StudioTaskTest with (prompt, player) to run the same handler
 local handlers: { [ProximityPrompt]: (Player) -> () } = {}
 if game:GetService("RunService"):IsStudio() then
     local hook = (ServerStorage:FindFirstChild("StudioTaskTest") or Instance.new("BindableFunction")) :: BindableFunction
@@ -109,7 +109,7 @@ function TaskKit.connect(prompt: ProximityPrompt, handler: (Player) -> ())
     end)
 end
 
--- Makes an invisible anchor part with the stored model on top, or a plain block if the model is missing.
+-- makes an invisible anchor part with the stored model on top, or a plain block if the model is missing
 function TaskKit.place(name: string, cframe: CFrame, size: Vector3, color: Color3): BasePart
     local part = Instance.new("Part")
     part.Name = name
@@ -159,7 +159,7 @@ function TaskKit.sound(parent: Instance, id: string, volume: number, range: numb
     return sound
 end
 
--- Runs onStart when preparation begins and onEnd when the round is over.
+-- runs onStart when preparation begins and onEnd when the round is over
 function TaskKit.onRound(onStart: (() -> ())?, onActive: (() -> ())?, onEnd: (() -> ())?)
     TaskKit.roundState:GetAttributeChangedSignal("Phase"):Connect(function()
         local phase = TaskKit.phase()

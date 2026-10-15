@@ -28,7 +28,7 @@ end
 
 local function livingTargets()
     local targets = {}
-    for _, candidate in ipairs(Players:GetPlayers()) do
+    for _, candidate in Players:GetPlayers() do
         local character = candidate.Character
         local humanoid = character and character:FindFirstChildOfClass("Humanoid")
         if candidate ~= player and candidate.Parent == Players
@@ -106,7 +106,7 @@ local function refresh(direction)
 
     local targets = livingTargets()
     local currentIndex = nil
-    for index, target in ipairs(targets) do
+    for index, target in targets do
         if target.player == targetPlayer then currentIndex = index; break end
     end
     selectedIndex = currentIndex or math.clamp(selectedIndex, 1, math.max(1, #targets))
@@ -143,8 +143,8 @@ toggleButton.Activated:Connect(function()
     refresh()
 end)
 
--- Revalidate targets after deaths, disconnects, character replacements and lobby respawns.
--- The bounded quarter-second pass also repairs Core camera resets after a lobby respawn.
+-- recheck who's watchable after deaths, leaves and respawns. running it 4x a second
+-- also fixes the camera when roblox resets it after a lobby respawn
 local accumulatedSeconds = 0
 RunService.Heartbeat:Connect(function(deltaTime)
     accumulatedSeconds += deltaTime

@@ -1,5 +1,5 @@
--- Task prompts carry a ForTeam attribute. Prompts for the other side are pushed out of
--- reach on this client only. The server checks teams again anyway.
+-- task prompts carry a ForTeam attribute. Prompts for the other side are pushed out of
+-- reach on this client only. The server checks teams again anyway
 local Players = game:GetService("Players")
 
 local player = Players.LocalPlayer

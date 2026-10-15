@@ -49,8 +49,8 @@ local function pointedFurniture()
         return model, hit.Position, hit.Distance
     end
 end
--- Grabbing unequips your weapon, and Roblox can send a Cancel for the mouse button when
--- that happens. Only treat it as a release if the button really is up.
+-- grabbing unequips your weapon, and Roblox can send a Cancel for the mouse button when
+-- that happens. Only treat it as a release if the button really is up
 local function pointerDown()
     return UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1)
         or UserInputService.TouchEnabled and pointerHeld
@@ -167,7 +167,7 @@ RunService.RenderStepped:Connect(function(deltaTime)
     elapsed = 0
     hint.Visible = false
     if heldModel and sessionId then
-        -- Catches a release that never sent an End event.
+        -- catches a release that never sent an End event
         if not allowed() or not heldModel:IsDescendantOf(workspace) or not UserInputService.TouchEnabled and not pointerDown() then
             drop()
             return

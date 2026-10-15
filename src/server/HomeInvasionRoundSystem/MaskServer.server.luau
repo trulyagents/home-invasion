@@ -1,6 +1,6 @@
--- Puts an animal mask on every Invader, like the killers in You're Next.
+-- puts an animal mask on every Invader, like the killers in You're Next.
 -- Uses the models in ServerStorage.HomeInvasionMasks (<Lamb|Fox|Tiger>, pivot at the centre of the head),
--- and falls back to a simple block mask if one is missing.
+-- and falls back to a simple block mask if one is missing
 local Players = game:GetService("Players")
 local ServerStorage = game:GetService("ServerStorage")
 
@@ -41,14 +41,14 @@ local function buildPlaceholder(maskName, head)
 
     local face = newPart(model, "Face", Vector3.new(head.Size.X * 1.05, head.Size.Y * 1.1, 0.18), look.face)
     weldTo(head, face, CFrame.new(0, 0.05, z))
-    for _, x in ipairs({ -0.22, 0.22 }) do
+    for _, x in { -0.22, 0.22 } do
         local eye = newPart(model, "EyeHole", Vector3.new(0.2, 0.12, 0.05), Color3.new(0, 0, 0))
         weldTo(head, eye, CFrame.new(x, 0.15, z - 0.1))
     end
     local snout = newPart(model, "Snout", Vector3.new(0.35, 0.25, 0.2), look.ear)
     weldTo(head, snout, CFrame.new(0, -0.2, z - 0.15))
 
-    for _, side in ipairs({ -1, 1 }) do
+    for _, side in { -1, 1 } do
         local ear
         if look.earShape == "Pointed" then
             ear = newPart(model, "Ear", Vector3.new(0.12, 0.45, 0.3), look.ear, "WedgePart")
@@ -71,7 +71,7 @@ local function wearMask(player, character)
     if player:GetAttribute("RoundRole") ~= "Invaders" or not looks[maskName] then
         return
     end
-    -- Loading the avatar swaps out the head, which would break the mask's welds.
+    -- loading the avatar swaps out the head, which would break the mask's welds
     local deadline = os.clock() + 10
     while not player:HasAppearanceLoaded() and os.clock() < deadline and player.Character == character do
         task.wait(0.1)
@@ -86,9 +86,9 @@ local function wearMask(player, character)
     if custom and custom:IsA("Model") then
         mask = custom:Clone()
         mask.Name = "AnimalMask"
-        -- The model's pivot should sit at the centre of the head.
+        -- the mask model's pivot has to be the middle of the head
         mask:PivotTo(head.CFrame)
-        for _, part in ipairs(mask:GetDescendants()) do
+        for _, part in mask:GetDescendants() do
             if part:IsA("BasePart") then
                 weldTo(head, part, head.CFrame:ToObjectSpace(part.CFrame))
             end
@@ -109,6 +109,6 @@ local function setup(player)
 end
 
 Players.PlayerAdded:Connect(setup)
-for _, player in ipairs(Players:GetPlayers()) do
+for _, player in Players:GetPlayers() do
     setup(player)
 end
