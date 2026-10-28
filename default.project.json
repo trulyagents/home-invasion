@@ -1,5 +1,6 @@
 {
   "name": "MyGame",
+  "blockedPlaceIds": [117496087900424, 130654928193601, 78626401443666, 77907701656482, 105216718355683, 130978784597339],
   "tree": {
     "$className": "DataModel",
     "ReplicatedStorage": {
